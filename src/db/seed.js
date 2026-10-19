@@ -4,7 +4,7 @@ try {
 } catch (e) {}
 
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('../utils/uuid');
 
 function seedData(targetDb) {
   const db = targetDb || defaultDb || require('./index');
