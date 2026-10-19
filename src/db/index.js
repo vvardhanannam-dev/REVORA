@@ -2,36 +2,41 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-let dbPath;
-if (process.env.VERCEL) {
-  // On Vercel, /tmp is the only writable directory
-  const tmpDir = '/tmp';
-  dbPath = path.join(tmpDir, 'revora.db');
-  const sourceDb = path.join(__dirname, '../../data/revora.db');
-  if (fs.existsSync(sourceDb) && !fs.existsSync(dbPath)) {
-    try {
-      fs.copyFileSync(sourceDb, dbPath);
-    } catch (e) {
-      console.warn('Could not copy sqlite db to /tmp:', e.message);
+let db;
+try {
+  let dbPath;
+  if (process.env.VERCEL) {
+    // On Vercel, /tmp is the only writable directory
+    const tmpDir = '/tmp';
+    dbPath = path.join(tmpDir, 'revora.db');
+    const sourceDb = path.join(__dirname, '../../data/revora.db');
+    if (fs.existsSync(sourceDb) && !fs.existsSync(dbPath)) {
+      try {
+        fs.copyFileSync(sourceDb, dbPath);
+      } catch (e) {
+        console.warn('Could not copy sqlite db to /tmp:', e.message);
+      }
     }
+  } else {
+    const dbDir = path.join(__dirname, '../../data');
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    dbPath = path.join(dbDir, 'revora.db');
   }
-} else {
-  const dbDir = path.join(__dirname, '../../data');
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+
+  db = new Database(dbPath);
+
+  // Enable foreign keys and WAL mode (WAL for local disk)
+  if (!process.env.VERCEL) {
+    try {
+      db.pragma('journal_mode = WAL');
+    } catch (e) {}
   }
-  dbPath = path.join(dbDir, 'revora.db');
+  db.pragma('foreign_keys = ON');
+} catch (err) {
+  console.warn('SQLite init warning (fallback):', err.message);
 }
-
-const db = new Database(dbPath);
-
-// Enable foreign keys and WAL mode (WAL for local disk)
-if (!process.env.VERCEL) {
-  try {
-    db.pragma('journal_mode = WAL');
-  } catch (e) {}
-}
-db.pragma('foreign_keys = ON');
 
 function initSchema() {
   db.exec(`
