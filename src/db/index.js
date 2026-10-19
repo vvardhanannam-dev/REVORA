@@ -96,7 +96,8 @@ function createSqliteWrapper(sqlDatabase) {
 // Check if running on local machine with better-sqlite3
 if (!process.env.VERCEL) {
   try {
-    const Database = require('better-sqlite3');
+    const req = eval('require');
+    const Database = req('better-sqlite3');
     const dbDir = path.join(__dirname, '../../data');
     if (!fs.existsSync(dbDir)) {
       try { fs.mkdirSync(dbDir, { recursive: true }); } catch (e) {}
