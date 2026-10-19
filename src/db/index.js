@@ -4,6 +4,27 @@ const fs = require('fs');
 let activeDbInstance = null;
 let initPromise = null;
 
+function normalizeParams(args) {
+  if (!args || args.length === 0) return [];
+  if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null && !Array.isArray(args[0])) {
+    const obj = args[0];
+    const normalized = {};
+    for (const [k, v] of Object.entries(obj)) {
+      normalized[k] = v;
+      if (!k.startsWith('@') && !k.startsWith(':') && !k.startsWith('$')) {
+        normalized['@' + k] = v;
+        normalized[':' + k] = v;
+        normalized['$' + k] = v;
+      }
+    }
+    return normalized;
+  }
+  if (args.length === 1 && Array.isArray(args[0])) {
+    return args[0];
+  }
+  return args;
+}
+
 function createSqliteWrapper(sqlDatabase) {
   return {
     exec(sql) {
@@ -34,7 +55,8 @@ function createSqliteWrapper(sqlDatabase) {
         all(...params) {
           const stmt = sqlDatabase.prepare(sql);
           try {
-            stmt.bind(params);
+            const p = normalizeParams(params);
+            if (p && (!Array.isArray(p) || p.length > 0)) stmt.bind(p);
             const results = [];
             while (stmt.step()) {
               results.push(stmt.getAsObject());
@@ -47,7 +69,8 @@ function createSqliteWrapper(sqlDatabase) {
         get(...params) {
           const stmt = sqlDatabase.prepare(sql);
           try {
-            stmt.bind(params);
+            const p = normalizeParams(params);
+            if (p && (!Array.isArray(p) || p.length > 0)) stmt.bind(p);
             if (stmt.step()) {
               return stmt.getAsObject();
             }
@@ -57,7 +80,8 @@ function createSqliteWrapper(sqlDatabase) {
           }
         },
         run(...params) {
-          sqlDatabase.run(sql, params);
+          const p = normalizeParams(params);
+          sqlDatabase.run(sql, p);
           const changes = sqlDatabase.getRowsModified();
           return {
             changes,
@@ -91,10 +115,13 @@ async function ensureDbReady() {
   if (!initPromise) {
     initPromise = (async () => {
       try {
-        const initSqlJs = require('sql.js');
-        const wasmPath = require.resolve('sql.js/dist/sql-wasm.wasm');
-        const wasmBinary = fs.readFileSync(wasmPath);
-        const SQL = await initSqlJs({ wasmBinary });
+        let initSqlJs;
+        try {
+          initSqlJs = require('sql.js/dist/sql-wasm-inline.js');
+        } catch (e) {
+          initSqlJs = require('sql.js');
+        }
+        const SQL = await initSqlJs();
         const dbFile = path.join(__dirname, '../../data/revora.db');
         let fileBuffer;
         if (fs.existsSync(dbFile)) {
@@ -103,7 +130,7 @@ async function ensureDbReady() {
         const rawDb = fileBuffer ? new SQL.Database(fileBuffer) : new SQL.Database();
         activeDbInstance = createSqliteWrapper(rawDb);
         if (!fileBuffer) {
-          initSchema(activeDbInstance);
+          initSchema();
           const { seedData } = require('./seed');
           seedData(activeDbInstance);
         }
