@@ -1,0 +1,7 @@
+node_modules/
+.env
+data/revora.db*
+data/*.db*
+public/uploads/*
+!public/uploads/.gitkeep
+audit-report.json

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>General Tool & Resource Sharing — REVORA | Bhimavaram</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="revora-header-container"></div>
+
+  <main class="py-4">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small">
+          <li class="breadcrumb-item"><a href="/index.html">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Resource Sharing</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+          <h1 class="h2 fw-bold text-revora-dark mb-1">General Tool & Resource Sharing</h1>
+          <p class="text-muted mb-0">Borrow occasional household and construction equipment—hammer drills, ladders, pressure washers, and tools—without purchasing.</p>
+        </div>
+        <div>
+          <button class="btn btn-revora-primary" onclick="openAddToolModal()">
+            <i class="bi bi-plus-lg me-1"></i>Share a Tool
+          </button>
+        </div>
+      </div>
+
+      <!-- Search & Discovery Bar for Shared Tools -->
+      <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white marketplace-search-card">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md-8">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                <i class="bi bi-search text-revora-forest"></i>
+              </span>
+              <input type="text" id="toolSearchInput" class="form-control border-start-0 border-end-0 py-2 ps-1" placeholder="Search power tools, hammer drills, ladders, mowers..." aria-label="Search tools" oninput="handleToolSearch(this.value)">
+              <button class="btn btn-outline-secondary border-start-0 text-muted bg-white" type="button" id="clearToolSearchBtn" onclick="clearToolSearch()" title="Clear search" style="display: none;">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+              <button class="btn btn-revora-primary px-3 px-md-4 fw-semibold" type="button" onclick="handleToolSearch(document.getElementById('toolSearchInput').value)">
+                Search
+              </button>
+            </div>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+            <span class="badge bg-revora-sage text-revora-forest py-2 px-3 rounded-pill fw-semibold" id="toolResultsFeedback">
+              <i class="bi bi-check2-circle me-1"></i>All shared tools available
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Filter -->
+      <div class="d-flex gap-2 overflow-x-auto pb-2 mb-4" id="toolCategoryPills">
+        <button class="btn btn-sm btn-revora-primary rounded-pill px-3 active" onclick="filterByToolCategory('')">All Shared Tools</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByToolCategory('cat_rs_power')"><i class="bi bi-tools me-1"></i>Power Tools & Drills</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByToolCategory('cat_rs_ladders')"><i class="bi bi-ladder me-1"></i>Ladders & Scaffolds</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByToolCategory('cat_rs_garden')"><i class="bi bi-tree me-1"></i>Gardening & Cleaning</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByToolCategory('cat_rs_construction')"><i class="bi bi-hammer me-1"></i>Construction Tools</button>
+      </div>
+
+      <!-- Tools Grid -->
+      <div class="row g-3" id="toolsContainer">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-revora-forest" role="status"></div>
+          <p class="text-muted mt-2">Loading shared equipment in Bhimavaram...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- BOOK TOOL MODAL -->
+  <div class="modal fade" id="toolBookingModal" tabindex="-1" aria-labelledby="toolBookingLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="toolBookingLabel"><i class="bi bi-tools me-2"></i>Borrow / Rent Resource</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="toolBookingForm" onsubmit="submitToolBooking(event)">
+          <div class="modal-body">
+            <input type="hidden" id="toolBookId">
+            <div class="p-3 bg-light rounded-3 mb-3 border">
+              <div class="fw-bold" id="toolBookTitle">Tool Title</div>
+              <div class="small text-muted" id="toolBookLocation">Location</div>
+              <div class="text-revora-forest fw-bold mt-1" id="toolBookPrice">₹200 / day</div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Pickup Date *</label>
+                <input type="date" id="toolStartDate" class="form-control form-control-sm" required onchange="calculateToolCost()">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Return Date *</label>
+                <input type="date" id="toolEndDate" class="form-control form-control-sm" required onchange="calculateToolCost()">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Notes / Pickup Coordination</label>
+              <textarea id="toolNotes" class="form-control form-control-sm" rows="2" placeholder="e.g. Will pick up in evening after 5 PM..."></textarea>
+            </div>
+
+            <div class="p-3 rounded-3 bg-revora-sage-light border border-revora-sage">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Duration:</span>
+                <span class="fw-semibold" id="toolCalcDays">0 Day(s)</span>
+              </div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Rental Charge:</span>
+                <span class="fw-semibold" id="toolCalcRent">₹0</span>
+              </div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Security Deposit (Refundable on return):</span>
+                <span class="fw-semibold" id="toolCalcDeposit">₹0</span>
+              </div>
+              <hr class="my-2 border-secondary opacity-25">
+              <div class="d-flex justify-content-between fw-bold text-revora-forest">
+                <span>Total Amount:</span>
+                <span id="toolCalcTotal">₹0</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4" id="submitToolBtn">Confirm Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARE TOOL MODAL -->
+  <div class="modal fade" id="addToolModal" tabindex="-1" aria-labelledby="addToolLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="addToolLabel"><i class="bi bi-plus-circle me-2"></i>Share Your Tools & Equipment</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="addToolForm" onsubmit="submitNewTool(event)">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label small fw-semibold">Item Name *</label>
+                <input type="text" id="newToolTitle" class="form-control form-control-sm" placeholder="e.g. Bosch Professional Rotary Hammer Drill" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Category *</label>
+                <select id="newToolCategory" class="form-select form-select-sm" required>
+                  <option value="cat_rs_power">Power Tools & Drills</option>
+                  <option value="cat_rs_ladders">Ladders & Scaffolds</option>
+                  <option value="cat_rs_garden">Gardening & Cleaning</option>
+                  <option value="cat_rs_construction">Construction Tools</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Brand / Make</label>
+                <input type="text" id="newToolBrand" class="form-control form-control-sm" placeholder="Bosch, Black+Decker, Karcher...">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Condition</label>
+                <select id="newToolCondition" class="form-select form-select-sm">
+                  <option value="Excellent">Excellent</option>
+                  <option value="Good">Good</option>
+                  <option value="Fair">Fair</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Security Deposit (₹)</label>
+                <input type="number" id="newToolDeposit" class="form-control form-control-sm" placeholder="1000" value="800">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Daily Rent (₹) *</label>
+                <input type="number" id="newToolPriceDay" class="form-control form-control-sm" placeholder="250" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Hourly Rent (₹) (Optional)</label>
+                <input type="number" id="newToolPriceHour" class="form-control form-control-sm" placeholder="50">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Pickup Area / Street *</label>
+                <input type="text" id="newToolLocation" class="form-control form-control-sm" placeholder="Gandhi Nagar, Bhimavaram" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Description & What's Included *</label>
+                <textarea id="newToolDesc" class="form-control form-control-sm" rows="3" placeholder="Includes extra bits, carrying case, safety gloves..." required></textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Tool Image</label>
+                <input type="file" id="newToolImage" class="form-control form-control-sm" accept="image/*">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4" id="submitAddToolBtn">Publish Tool</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="revora-footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let toolListings = [];
+    let selectedTool = null;
+    let selectedToolCategory = '';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RevoraApp.renderNavbar('resource-sharing');
+      RevoraApp.renderFooter();
+
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('toolStartDate').min = today;
+      document.getElementById('toolEndDate').min = today;
+
+      loadSharedTools();
+    });
+
+    let currentToolSearch = '';
+
+    async function loadSharedTools() {
+      try {
+        let url = '/equipment?section=resource_sharing';
+        if (selectedToolCategory) url += `&category=${selectedToolCategory}`;
+        const data = await RevoraApp.fetchApi(url);
+        toolListings = data.listings || [];
+        filterAndRenderTools();
+      } catch (err) {
+        document.getElementById('toolsContainer').innerHTML = `
+          <div class="col-12 text-center py-5 text-danger">
+            <p>Failed to load shared tools: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function handleToolSearch(val) {
+      currentToolSearch = (val || '').trim().toLowerCase();
+      const clearBtn = document.getElementById('clearToolSearchBtn');
+      if (clearBtn) {
+        clearBtn.style.display = currentToolSearch.length > 0 ? 'inline-block' : 'none';
+      }
+      filterAndRenderTools();
+    }
+
+    function clearToolSearch() {
+      const input = document.getElementById('toolSearchInput');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      handleToolSearch('');
+    }
+
+    function filterAndRenderTools() {
+      let filtered = toolListings;
+      if (currentToolSearch) {
+        filtered = filtered.filter(t => {
+          const combined = `${t.title} ${t.description} ${t.brand || ''} ${t.location} ${t.city} ${t.category_name}`.toLowerCase();
+          return combined.includes(currentToolSearch);
+        });
+      }
+
+      const feedback = document.getElementById('toolResultsFeedback');
+      if (feedback) {
+        if (currentToolSearch) {
+          feedback.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>Found ${filtered.length} tool${filtered.length === 1 ? '' : 's'}`;
+          feedback.className = 'badge bg-warning text-dark py-2 px-3 rounded-pill fw-semibold';
+        } else {
+          feedback.innerHTML = `<i class="bi bi-check2-circle me-1"></i>All ${toolListings.length} tools available`;
+          feedback.className = 'badge bg-revora-sage text-revora-forest py-2 px-3 rounded-pill fw-semibold';
+        }
+      }
+
+      renderTools(filtered);
+    }
+
+    function filterByToolCategory(cat) {
+      selectedToolCategory = cat;
+      const pills = document.querySelectorAll('#toolCategoryPills button');
+      pills.forEach(p => {
+        p.classList.remove('btn-revora-primary', 'active');
+        p.classList.add('btn-outline-secondary');
+      });
+      event.target.classList.remove('btn-outline-secondary');
+      event.target.classList.add('btn-revora-primary', 'active');
+      loadSharedTools();
+    }
+
+    function renderTools(tools) {
+      const container = document.getElementById('toolsContainer');
+      if (!tools || tools.length === 0) {
+        container.innerHTML = `
+          <div class="col-12 text-center py-5 product-card-animate">
+            <div class="p-4 bg-white rounded-4 border shadow-sm mx-auto" style="max-width: 480px;">
+              <i class="bi bi-tools text-muted fs-1 mb-3"></i>
+              <h5 class="fw-bold mb-2">No tools match your search</h5>
+              <p class="text-muted small mb-3">Try keywords like <em>drill, hammer, ladder, washer</em>, or clear your query.</p>
+              <button class="btn btn-revora-outline btn-sm" onclick="clearToolSearch()">Reset Tool Search</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = tools.map((item, idx) => `
+        <div class="col-12 col-sm-6 col-lg-4 product-card-animate" style="animation-delay: ${idx * 0.05}s;">
+          <div class="revora-card h-100 d-flex flex-column">
+            <div class="revora-card-img-wrapper">
+              <img src="${item.images[0] || 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800'}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/400x300/15803d/ffffff?text=REVORA';">
+              ${item.is_demo ? '<span class="position-absolute top-0 start-0 m-2 badge badge-demo">Demo Resource</span>' : ''}
+              <span class="position-absolute bottom-0 end-0 m-2 badge badge-revora-tag">${item.category_name}</span>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 small fw-bold">
+                  <i class="bi bi-patch-check-fill me-1"></i>Verified
+                </span>
+                <span class="badge ${item.is_available ? 'bg-success' : 'bg-secondary'} bg-opacity-75 small">
+                  ${item.is_available ? 'Available' : 'Rented'}
+                </span>
+              </div>
+              <h5 class="fw-bold mb-1 text-truncate" title="${item.title}" style="color: var(--re-text-main); font-size: 1.05rem;">${item.title}</h5>
+              <p class="text-muted small mb-2" style="font-size: 0.8rem; height: 38px; overflow: hidden;">${item.description}</p>
+              
+              <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1 text-revora-forest"></i>${item.location} (${item.city})</div>
+              <div class="small text-muted mb-3"><i class="bi bi-shield-lock me-1"></i>Deposit: ₹${Number(item.security_deposit || 0).toLocaleString('en-IN')}</div>
+
+              <div class="mt-auto pt-2 border-top border-revora-sage d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="fs-5 fw-bold text-revora-forest">₹${Number(item.price_per_day).toLocaleString('en-IN')}</span>
+                  <span class="small text-muted">/day</span>
+                </div>
+                <button class="btn btn-revora-primary btn-sm px-3 fw-bold" onclick="openToolBookingModal('${item.id}')">
+                  <i class="bi bi-calendar-check me-1"></i>Book Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function openToolBookingModal(id) {
+      if (!RevoraApp.getUser()) {
+        RevoraApp.showToast('Please sign in to borrow or rent tools.', 'warning');
+        setTimeout(() => {
+          window.location.href = `/auth.html?mode=login&redirect=${encodeURIComponent(window.location.pathname)}`;
+        }, 1200);
+        return;
+      }
+
+      try {
+        const data = await RevoraApp.fetchApi(`/equipment/${id}`);
+        selectedTool = data.equipment;
+
+        document.getElementById('toolBookId').value = selectedTool.id;
+        document.getElementById('toolBookTitle').innerText = selectedTool.title;
+        document.getElementById('toolBookLocation').innerText = `${selectedTool.location}, ${selectedTool.city}`;
+        document.getElementById('toolBookPrice').innerText = `₹${selectedTool.price_per_day} / day`;
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dayAfter = new Date();
+        dayAfter.setDate(dayAfter.getDate() + 2);
+
+        document.getElementById('toolStartDate').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('toolEndDate').value = dayAfter.toISOString().split('T')[0];
+
+        calculateToolCost();
+
+        const modal = new bootstrap.Modal(document.getElementById('toolBookingModal'));
+        modal.show();
+      } catch (err) {
+        RevoraApp.showToast('Error loading tool: ' + err.message, 'error');
+      }
+    }
+
+    function calculateToolCost() {
+      if (!selectedTool) return;
+      const start = new Date(document.getElementById('toolStartDate').value);
+      const end = new Date(document.getElementById('toolEndDate').value);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) {
+        document.getElementById('toolCalcDays').innerText = 'Invalid dates';
+        document.getElementById('toolCalcRent').innerText = '₹0';
+        document.getElementById('toolCalcTotal').innerText = '₹0';
+        return;
+      }
+
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const days = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+      const rent = days * selectedTool.price_per_day;
+      const deposit = selectedTool.security_deposit || 0;
+      const total = rent + deposit;
+
+      document.getElementById('toolCalcDays').innerText = `${days} Day(s)`;
+      document.getElementById('toolCalcRent').innerText = `₹${rent.toLocaleString()}`;
+      document.getElementById('toolCalcDeposit').innerText = `₹${deposit.toLocaleString()}`;
+      document.getElementById('toolCalcTotal').innerText = `₹${total.toLocaleString()}`;
+    }
+
+    async function submitToolBooking(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitToolBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+
+      const payload = {
+        start_date: document.getElementById('toolStartDate').value,
+        end_date: document.getElementById('toolEndDate').value,
+        notes: document.getElementById('toolNotes').value
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi(`/equipment/${document.getElementById('toolBookId').value}/book`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('toolBookingModal')).hide();
+        setTimeout(() => {
+          window.location.href = '/dashboard.html?tab=rentals';
+        }, 1500);
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Confirm Request';
+      }
+    }
+
+    function openAddToolModal() {
+      if (!RevoraApp.getUser()) {
+        RevoraApp.showToast('Please sign in to share your tools.', 'warning');
+        setTimeout(() => {
+          window.location.href = '/auth.html?mode=login';
+        }, 1200);
+        return;
+      }
+      const modal = new bootstrap.Modal(document.getElementById('addToolModal'));
+      modal.show();
+    }
+
+    async function submitNewTool(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitAddToolBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Publishing...';
+
+      let imageUrl = null;
+      const fileInput = document.getElementById('newToolImage');
+      if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        try {
+          const upRes = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${RevoraApp.getToken()}` },
+            body: formData
+          });
+          const upData = await upRes.json();
+          if (upData.success) imageUrl = upData.imageUrl;
+        } catch (uErr) {}
+      }
+
+      const payload = {
+        section: 'resource_sharing',
+        title: document.getElementById('newToolTitle').value,
+        category_id: document.getElementById('newToolCategory').value,
+        brand: document.getElementById('newToolBrand').value,
+        condition: document.getElementById('newToolCondition').value,
+        price_per_day: document.getElementById('newToolPriceDay').value,
+        price_per_hour: document.getElementById('newToolPriceHour').value,
+        security_deposit: document.getElementById('newToolDeposit').value,
+        location: document.getElementById('newToolLocation').value,
+        city: 'Bhimavaram',
+        description: document.getElementById('newToolDesc').value,
+        images: imageUrl ? [imageUrl] : []
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi('/equipment', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('addToolModal')).hide();
+        document.getElementById('addToolForm').reset();
+        loadSharedTools();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Publish Tool';
+      }
+    }
+  </script>
+</body>
+</html>

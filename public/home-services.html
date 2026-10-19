@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Local Home Services — REVORA | Bhimavaram</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="revora-header-container"></div>
+
+  <main class="py-4">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small">
+          <li class="breadcrumb-item"><a href="/index.html">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Local Home Services</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+          <h1 class="h2 fw-bold text-revora-dark mb-1">Local Home Services</h1>
+          <p class="text-muted mb-0">Book certified local plumbers, licensed electricians, AC repair specialists, and carpenters in Bhimavaram.</p>
+        </div>
+        <div>
+          <button class="btn btn-revora-primary" onclick="openRegisterProviderModal()">
+            <i class="bi bi-briefcase me-1"></i>Register as Technician
+          </button>
+        </div>
+      </div>
+
+      <!-- Search & Discovery Bar for Home Services -->
+      <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white marketplace-search-card">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md-8">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                <i class="bi bi-search text-revora-forest"></i>
+              </span>
+              <input type="text" id="serviceSearchInput" class="form-control border-start-0 border-end-0 py-2 ps-1" placeholder="Search electricians, plumbers, AC technicians, carpenters..." aria-label="Search technicians" oninput="handleServiceSearch(this.value)">
+              <button class="btn btn-outline-secondary border-start-0 text-muted bg-white" type="button" id="clearServiceSearchBtn" onclick="clearServiceSearch()" title="Clear search" style="display: none;">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+              <button class="btn btn-revora-primary px-3 px-md-4 fw-semibold" type="button" onclick="handleServiceSearch(document.getElementById('serviceSearchInput').value)">
+                Search
+              </button>
+            </div>
+          </div>
+          <div class="col-12 col-md-4 text-md-end">
+            <span class="badge bg-revora-sage text-revora-forest py-2 px-3 rounded-pill fw-semibold" id="serviceResultsFeedback">
+              <i class="bi bi-check2-circle me-1"></i>All specialists verified
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Filter -->
+      <div class="d-flex gap-2 overflow-x-auto pb-2 mb-4" id="serviceCategoryPills">
+        <button class="btn btn-sm btn-revora-primary rounded-pill px-3 active" onclick="filterByServiceCat('')">All Services</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_electrician')"><i class="bi bi-lightning-charge me-1"></i>Electricians</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_appliance')"><i class="bi bi-tv me-1"></i>AC & Appliances</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_plumber')"><i class="bi bi-water me-1"></i>Plumbing</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_carpenter')"><i class="bi bi-door-open me-1"></i>Carpentry</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_painting')"><i class="bi bi-brush me-1"></i>Painting</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_cleaning')"><i class="bi bi-droplet me-1"></i>Deep Cleaning</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_pest')"><i class="bi bi-shield-check me-1"></i>Pest Control</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="filterByServiceCat('cat_hs_gardening')"><i class="bi bi-tree me-1"></i>Gardening</button>
+      </div>
+
+      <!-- Providers Grid -->
+      <div class="row g-3" id="providersContainer">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-revora-forest" role="status"></div>
+          <p class="text-muted mt-2">Loading service specialists in Bhimavaram...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- BOOK SERVICE MODAL -->
+  <div class="modal fade" id="serviceBookingModal" tabindex="-1" aria-labelledby="serviceBookingLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="serviceBookingLabel"><i class="bi bi-calendar2-check me-2"></i>Schedule Technician Visit</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="serviceBookingForm" onsubmit="submitServiceBooking(event)">
+          <div class="modal-body">
+            <input type="hidden" id="serviceProviderId">
+            <div class="p-3 bg-light rounded-3 mb-3 border d-flex align-items-center gap-3">
+              <img id="modalProviderAvatar" src="" class="rounded-circle border" style="width: 50px; height: 50px; object-fit: cover;">
+              <div>
+                <div class="fw-bold" id="modalProviderName">Provider Name</div>
+                <div class="small text-muted" id="modalProviderProfession">Profession</div>
+                <div class="text-revora-forest fw-semibold small" id="modalProviderFee">Visiting Charge: ₹200</div>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Preferred Date *</label>
+                <input type="date" id="srvDate" class="form-control form-control-sm" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Time Slot *</label>
+                <select id="srvTimeSlot" class="form-select form-select-sm" required>
+                  <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                  <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                  <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                  <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                  <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Service Address *</label>
+              <textarea id="srvAddress" class="form-control form-control-sm" rows="2" placeholder="Door No, Street, Landmark in Bhimavaram" required></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Contact Phone Number *</label>
+              <input type="tel" id="srvPhone" class="form-control form-control-sm" placeholder="+91 98480 12345" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Problem Description *</label>
+              <textarea id="srvDesc" class="form-control form-control-sm" rows="2" placeholder="Describe the issue (e.g. Switchboard sparking, AC cooling gas leak, pipe joint leak...)" required></textarea>
+            </div>
+
+            <div class="p-3 bg-revora-sage-light rounded-3 border border-revora-sage small text-muted">
+              <i class="bi bi-info-circle me-1 text-revora-forest"></i>
+              <strong>Pay on visit completion:</strong> Visiting fee covers diagnosis and travel. Additional parts or extensive labor are agreed upfront with the specialist.
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4" id="submitSrvBtn">Confirm Appointment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER TECHNICIAN MODAL -->
+  <div class="modal fade" id="registerProviderModal" tabindex="-1" aria-labelledby="registerProviderLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="registerProviderLabel"><i class="bi bi-person-badge me-2"></i>Register as Home Service Technician</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="registerProviderForm" onsubmit="submitProviderProfile(event)">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Primary Skill Category *</label>
+                <select id="provCategory" class="form-select form-select-sm" required>
+                  <option value="cat_hs_electrician">Electrical Work</option>
+                  <option value="cat_hs_appliance">AC & Appliance Repair</option>
+                  <option value="cat_hs_plumber">Plumbing Services</option>
+                  <option value="cat_hs_carpenter">Carpentry & Furniture</option>
+                  <option value="cat_hs_painting">Painting & Waterproofing</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Professional Title *</label>
+                <input type="text" id="provTitle" class="form-control form-control-sm" placeholder="e.g. Senior Licensed Wireman & Solar Electrician" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Years of Experience</label>
+                <input type="number" id="provExp" class="form-control form-control-sm" value="5" min="1" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Visiting Fee (₹) *</label>
+                <input type="number" id="provFee" class="form-control form-control-sm" value="200" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Hourly Rate (₹) (Optional)</label>
+                <input type="number" id="provHourly" class="form-control form-control-sm" placeholder="250">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Service Coverage Areas</label>
+                <input type="text" id="provAreas" class="form-control form-control-sm" value="Bhimavaram, Undi, Palakollu (15km radius)" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Key Skills (Comma separated)</label>
+                <input type="text" id="provSkills" class="form-control form-control-sm" placeholder="e.g. Inverter Wiring, MCB Setup, Ceiling Fan Installation, Motor Starter">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Professional Bio & Certifications</label>
+                <textarea id="provBio" class="form-control form-control-sm" rows="3" placeholder="Describe your background, license information, and working hours..."></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4" id="submitProvBtn">Submit Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="revora-footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let providersList = [];
+    let selectedServiceCat = '';
+    let chosenProvider = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RevoraApp.renderNavbar('home-services');
+      RevoraApp.renderFooter();
+
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('srvDate').min = today;
+
+      loadProviders();
+    });
+
+    let currentServiceSearch = '';
+
+    async function loadProviders() {
+      try {
+        let url = '/services';
+        if (selectedServiceCat) url += `?category=${selectedServiceCat}`;
+        const data = await RevoraApp.fetchApi(url);
+        providersList = data.providers || [];
+        filterAndRenderProviders();
+
+        if (window.location.hash.startsWith('#book-')) {
+          const provId = window.location.hash.replace('#book-', '');
+          openServiceBookingModal(provId);
+        }
+      } catch (err) {
+        document.getElementById('providersContainer').innerHTML = `
+          <div class="col-12 text-center py-5 text-danger">
+            <p>Failed to load service technicians: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function handleServiceSearch(val) {
+      currentServiceSearch = (val || '').trim().toLowerCase();
+      const clearBtn = document.getElementById('clearServiceSearchBtn');
+      if (clearBtn) {
+        clearBtn.style.display = currentServiceSearch.length > 0 ? 'inline-block' : 'none';
+      }
+      filterAndRenderProviders();
+    }
+
+    function clearServiceSearch() {
+      const input = document.getElementById('serviceSearchInput');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      handleServiceSearch('');
+    }
+
+    function filterAndRenderProviders() {
+      let filtered = providersList;
+      if (currentServiceSearch) {
+        filtered = filtered.filter(sp => {
+          const skillsText = (sp.skills || []).join(' ');
+          const combined = `${sp.provider_name} ${sp.profession_title} ${sp.category_name} ${sp.service_areas} ${sp.bio || ''} ${skillsText}`.toLowerCase();
+          return combined.includes(currentServiceSearch);
+        });
+      }
+
+      const feedback = document.getElementById('serviceResultsFeedback');
+      if (feedback) {
+        if (currentServiceSearch) {
+          feedback.innerHTML = `<i class="bi bi-funnel-fill me-1"></i>Found ${filtered.length} specialist${filtered.length === 1 ? '' : 's'}`;
+          feedback.className = 'badge bg-warning text-dark py-2 px-3 rounded-pill fw-semibold';
+        } else {
+          feedback.innerHTML = `<i class="bi bi-check2-circle me-1"></i>All specialists verified`;
+          feedback.className = 'badge bg-revora-sage text-revora-forest py-2 px-3 rounded-pill fw-semibold';
+        }
+      }
+
+      renderProviders(filtered);
+    }
+
+    function filterByServiceCat(cat) {
+      selectedServiceCat = cat;
+      const pills = document.querySelectorAll('#serviceCategoryPills button');
+      pills.forEach(p => {
+        p.classList.remove('btn-revora-primary', 'active');
+        p.classList.add('btn-outline-secondary');
+      });
+      event.target.classList.remove('btn-outline-secondary');
+      event.target.classList.add('btn-revora-primary', 'active');
+      loadProviders();
+    }
+
+    function renderProviders(providers) {
+      const container = document.getElementById('providersContainer');
+      if (!providers || providers.length === 0) {
+        container.innerHTML = `
+          <div class="col-12 text-center py-5 product-card-animate">
+            <div class="p-4 bg-white rounded-4 border shadow-sm mx-auto" style="max-width: 480px;">
+              <i class="bi bi-person-x text-muted fs-1 mb-3"></i>
+              <h5 class="fw-bold mb-2">No service specialists match your query</h5>
+              <p class="text-muted small mb-3">Try searching for <em>electrician, AC repair, plumber, carpenter</em>, or reset your search query.</p>
+              <button class="btn btn-revora-outline btn-sm" onclick="clearServiceSearch()">Reset Service Search</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = providers.map((sp, idx) => {
+        const skillsBadges = sp.skills.slice(0, 3).map(s => `<span class="badge bg-light text-dark border small me-1 mb-1">${s}</span>`).join('');
+        return `
+          <div class="col-12 col-md-6 col-lg-4 product-card-animate" style="animation-delay: ${idx * 0.05}s;">
+            <div class="revora-card h-100 d-flex flex-column p-3">
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <img src="${sp.provider_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="rounded-circle border" style="width: 60px; height: 60px; object-fit: cover;" alt="${sp.provider_name}">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="h6 fw-bold mb-0">${sp.provider_name}</h5>
+                    ${sp.is_verified ? '<span class="badge bg-success bg-opacity-10 text-success small"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>' : ''}
+                  </div>
+                  <span class="badge bg-revora-sage text-revora-forest small mt-1">${sp.category_name}</span>
+                  <div class="text-warning small mt-1">
+                    <i class="bi bi-star-fill"></i> ${sp.avg_rating} <span class="text-muted">(${sp.review_count} reviews)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="fw-semibold text-dark small mb-1">${sp.profession_title}</div>
+              <p class="text-muted small mb-2 text-truncate-2" style="font-size: 0.8rem; height: 38px; overflow: hidden;">${sp.bio || 'Skilled local service provider ready for callouts.'}</p>
+
+              <div class="small text-muted mb-2"><i class="bi bi-geo-alt me-1 text-revora-forest"></i>${sp.service_areas}</div>
+              <div class="small text-muted mb-2"><i class="bi bi-award me-1 text-revora-gold"></i>${sp.experience_years} Years Experience</div>
+
+              <div class="mb-3">${skillsBadges}</div>
+
+              <div class="mt-auto pt-2 border-top border-revora-sage d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="fs-5 fw-bold text-revora-forest">₹${sp.visiting_charge}</span>
+                  <span class="small text-muted">visit fee</span>
+                </div>
+                <button class="btn btn-revora-primary btn-sm px-3" onclick="openServiceBookingModal('${sp.id}')">
+                  Book Visit
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openServiceBookingModal(provId) {
+      if (!RevoraApp.getUser()) {
+        RevoraApp.showToast('Please sign in to schedule a service visit.', 'warning');
+        setTimeout(() => {
+          window.location.href = `/auth.html?mode=login&redirect=${encodeURIComponent(window.location.pathname)}`;
+        }, 1200);
+        return;
+      }
+
+      try {
+        const data = await RevoraApp.fetchApi(`/services/${provId}`);
+        chosenProvider = data.provider;
+
+        document.getElementById('serviceProviderId').value = chosenProvider.id;
+        document.getElementById('modalProviderAvatar').src = chosenProvider.provider_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+        document.getElementById('modalProviderName').innerText = chosenProvider.provider_name;
+        document.getElementById('modalProviderProfession').innerText = `${chosenProvider.profession_title} (${chosenProvider.category_name})`;
+        document.getElementById('modalProviderFee').innerText = `Visiting Charge: ₹${chosenProvider.visiting_charge}`;
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('srvDate').value = tomorrow.toISOString().split('T')[0];
+
+        const user = RevoraApp.getUser();
+        if (user.address) document.getElementById('srvAddress').value = user.address;
+        if (user.phone) document.getElementById('srvPhone').value = user.phone;
+
+        const modal = new bootstrap.Modal(document.getElementById('serviceBookingModal'));
+        modal.show();
+      } catch (err) {
+        RevoraApp.showToast('Error loading provider: ' + err.message, 'error');
+      }
+    }
+
+    async function submitServiceBooking(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitSrvBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Booking...';
+
+      const provId = document.getElementById('serviceProviderId').value;
+      const payload = {
+        scheduled_date: document.getElementById('srvDate').value,
+        scheduled_time_slot: document.getElementById('srvTimeSlot').value,
+        service_address: document.getElementById('srvAddress').value,
+        city: 'Bhimavaram',
+        phone: document.getElementById('srvPhone').value,
+        problem_description: document.getElementById('srvDesc').value
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi(`/services/${provId}/book`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('serviceBookingModal')).hide();
+        setTimeout(() => {
+          window.location.href = '/dashboard.html?tab=service-bookings';
+        }, 1500);
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Confirm Appointment';
+      }
+    }
+
+    function openRegisterProviderModal() {
+      if (!RevoraApp.getUser()) {
+        RevoraApp.showToast('Please sign in or create an account first.', 'warning');
+        setTimeout(() => {
+          window.location.href = '/auth.html?mode=login';
+        }, 1200);
+        return;
+      }
+      const modal = new bootstrap.Modal(document.getElementById('registerProviderModal'));
+      modal.show();
+    }
+
+    async function submitProviderProfile(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitProvBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+
+      const skillsArr = document.getElementById('provSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+
+      const payload = {
+        category_id: document.getElementById('provCategory').value,
+        profession_title: document.getElementById('provTitle').value,
+        experience_years: document.getElementById('provExp').value,
+        visiting_charge: document.getElementById('provFee').value,
+        hourly_rate: document.getElementById('provHourly').value,
+        service_areas: document.getElementById('provAreas').value,
+        skills: skillsArr,
+        bio: document.getElementById('provBio').value
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi('/services/profile', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('registerProviderModal')).hide();
+        loadProviders();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Profile';
+      }
+    }
+  </script>
+</body>
+</html>

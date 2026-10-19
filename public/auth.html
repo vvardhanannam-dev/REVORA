@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Sign In / Register — REVORA | Bhimavaram</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-revora-ivory">
+  <div id="revora-header-container"></div>
+
+  <main class="py-5 d-flex align-items-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-6 col-xl-5">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Nav Tabs -->
+            <div class="card-header bg-white border-0 p-0 pt-3 px-4">
+              <ul class="nav nav-tabs nav-fill border-0" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active fw-bold py-3 text-revora-dark border-0 border-bottom border-3 border-revora-forest" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">Sign In</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link fw-bold py-3 text-muted border-0 border-bottom border-3 border-transparent" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">Register</button>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+              <div class="tab-content" id="authTabContent">
+                <!-- LOGIN PANE -->
+                <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                  <div class="text-center mb-4">
+                    <img src="/images/revora_logo.png" alt="REVORA" class="mb-2" style="height: 70px; object-fit: contain;">
+                    <h3 class="fw-bold mb-1">Welcome Back</h3>
+                    <p class="text-muted small">Sign in to manage rentals, orders, and services.</p>
+                  </div>
+
+                  <!-- Quick Demo Accounts Helper -->
+                  <div class="p-3 mb-4 rounded-3 bg-revora-sage-light border border-revora-sage">
+                    <div class="small fw-bold text-revora-forest mb-2"><i class="bi bi-key-fill me-1"></i>One-Click Demo Accounts:</div>
+                    <div class="d-flex flex-wrap gap-1">
+                      <button class="btn btn-xs btn-outline-success py-1 px-2 small" onclick="fillLogin('customer@revora.local', 'demo1234')">Customer</button>
+                      <button class="btn btn-xs btn-outline-success py-1 px-2 small" onclick="fillLogin('farmer@revora.local', 'demo1234')">Farmer</button>
+                      <button class="btn btn-xs btn-outline-success py-1 px-2 small" onclick="fillLogin('owner@revora.local', 'demo1234')">Equipment Owner</button>
+                      <button class="btn btn-xs btn-outline-success py-1 px-2 small" onclick="fillLogin('service@revora.local', 'demo1234')">Electrician</button>
+                      <button class="btn btn-xs btn-outline-success py-1 px-2 small" onclick="fillLogin('admin@revora.local', 'demo1234')">Admin</button>
+                    </div>
+                  </div>
+
+                  <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Email Address *</label>
+                      <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                        <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com" required>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label small fw-semibold mb-0">Password *</label>
+                        <a href="javascript:void(0)" onclick="RevoraApp.showToast('For demo credentials, click one of the quick demo buttons above.', 'info')" class="small text-muted">Forgot password?</a>
+                      </div>
+                      <div class="input-group mt-1">
+                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                      </div>
+                    </div>
+
+                    <button type="submit" id="loginBtn" class="btn btn-revora-primary w-100 py-2 fw-semibold">
+                      Sign In
+                    </button>
+                  </form>
+                </div>
+
+                <!-- REGISTER PANE -->
+                <div class="tab-pane fade" id="register-pane" role="tabpanel">
+                  <div class="text-center mb-4">
+                    <h3 class="fw-bold mb-1">Create Account</h3>
+                    <p class="text-muted small">Join REVORA community in Bhimavaram.</p>
+                  </div>
+
+                  <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Full Name *</label>
+                      <input type="text" id="regName" class="form-control form-control-sm" placeholder="e.g. Rama Rao Raju" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                      <div class="col-6">
+                        <label class="form-label small fw-semibold">Email Address *</label>
+                        <input type="email" id="regEmail" class="form-control form-control-sm" placeholder="name@example.com" required>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small fw-semibold">Phone Number</label>
+                        <input type="tel" id="regPhone" class="form-control form-control-sm" placeholder="+91 98480 12345">
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Password * (min 6 chars)</label>
+                      <input type="password" id="regPassword" class="form-control form-control-sm" placeholder="••••••••" minlength="6" required>
+                    </div>
+
+                    <!-- Role Selection -->
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">I want to join as: (Select all that apply)</label>
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <div class="form-check p-2 border rounded-3 bg-light">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" value="customer" id="roleCustomer" checked>
+                            <label class="form-check-label small fw-semibold" for="roleCustomer">Buyer / Renter</label>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="form-check p-2 border rounded-3 bg-light">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" value="farmer" id="roleFarmer">
+                            <label class="form-check-label small fw-semibold" for="roleFarmer">Farmer</label>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="form-check p-2 border rounded-3 bg-light">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" value="equipment_owner" id="roleOwner">
+                            <label class="form-check-label small fw-semibold" for="roleOwner">Equipment Owner</label>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="form-check p-2 border rounded-3 bg-light">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" value="service_provider" id="roleService">
+                            <label class="form-check-label small fw-semibold" for="roleService">Service Provider</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                      <div class="col-8">
+                        <label class="form-label small fw-semibold">Town / Area</label>
+                        <input type="text" id="regAddress" class="form-control form-control-sm" placeholder="Gandhi Nagar, Bhimavaram">
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label small fw-semibold">PIN Code</label>
+                        <input type="text" id="regPincode" class="form-control form-control-sm" value="534201">
+                      </div>
+                    </div>
+
+                    <button type="submit" id="regBtn" class="btn btn-revora-primary w-100 py-2 fw-semibold">
+                      Create My Account
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="revora-footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      RevoraApp.renderNavbar('auth');
+      RevoraApp.renderFooter();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('mode') === 'register') {
+        const triggerEl = document.querySelector('#register-tab');
+        bootstrap.Tab.getInstance(triggerEl) ? bootstrap.Tab.getInstance(triggerEl).show() : new bootstrap.Tab(triggerEl).show();
+      }
+
+      // Tab switcher styles
+      const tabs = document.querySelectorAll('#authTabs button');
+      tabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', (e) => {
+          tabs.forEach(t => {
+            t.classList.remove('border-revora-forest', 'text-revora-dark');
+            t.classList.add('text-muted');
+          });
+          e.target.classList.add('border-revora-forest', 'text-revora-dark');
+          e.target.classList.remove('text-muted');
+        });
+      });
+    });
+
+    function fillLogin(email, pwd) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = pwd;
+      RevoraApp.showToast(`Selected demo credentials for ${email}`, 'info');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Signing in...';
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await RevoraApp.fetchApi('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        RevoraApp.setUser(res.user, res.token);
+        RevoraApp.showToast(res.message, 'success');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect') || '/dashboard.html';
+
+        setTimeout(() => {
+          window.location.href = redirect;
+        }, 1000);
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Sign In';
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const btn = document.getElementById('regBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating Account...';
+
+      const roles = [];
+      if (document.getElementById('roleCustomer').checked) roles.push('customer');
+      if (document.getElementById('roleFarmer').checked) roles.push('farmer');
+      if (document.getElementById('roleOwner').checked) roles.push('equipment_owner');
+      if (document.getElementById('roleService').checked) roles.push('service_provider');
+
+      const payload = {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value.trim(),
+        phone: document.getElementById('regPhone').value.trim(),
+        password: document.getElementById('regPassword').value,
+        roles: roles.length > 0 ? roles : ['customer'],
+        address: document.getElementById('regAddress').value,
+        city: 'Bhimavaram',
+        pincode: document.getElementById('regPincode').value
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.setUser(res.user, res.token);
+        RevoraApp.showToast(res.message, 'success');
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 1200);
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Create My Account';
+      }
+    }
+  </script>
+</body>
+</html>

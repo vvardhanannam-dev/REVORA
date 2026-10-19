@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Farm Equipment Rental — REVORA | Bhimavaram</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="revora-header-container"></div>
+
+  <main class="py-4">
+    <div class="container">
+      <!-- Breadcrumb & Header -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small">
+          <li class="breadcrumb-item"><a href="/index.html">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Farm Equipment Rental</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+          <h1 class="h2 fw-bold text-revora-dark mb-1">Farm Equipment Rental</h1>
+          <p class="text-muted mb-0">Discover and rent verified tractors, paddy harvesters, rotavators, tillers, and sprayers in Bhimavaram delta.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <!-- Mobile Filter Trigger -->
+          <button class="btn btn-revora-outline d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-controls="filterOffcanvas">
+            <i class="bi bi-funnel me-1"></i>Filters
+          </button>
+          <button class="btn btn-revora-primary" onclick="openAddListingModal()">
+            <i class="bi bi-plus-lg me-1"></i>List Equipment
+          </button>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Desktop Sidebar Filters -->
+        <div class="col-lg-3 d-none d-lg-block">
+          <div class="bg-white p-3 rounded-4 border border-revora-sage shadow-sm sticky-top" style="top: 85px;">
+            <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+              <span><i class="bi bi-sliders me-2 text-revora-forest"></i>Filters</span>
+              <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" onclick="resetFilters()">Reset</button>
+            </h5>
+            <div id="filterContent">
+              <!-- Search query -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Keywords</label>
+                <input type="text" id="filterKeyword" class="form-control form-control-sm" placeholder="Tractor, Mahindra, Kubota...">
+              </div>
+
+              <!-- Categories -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Category</label>
+                <select id="filterCategory" class="form-select form-select-sm">
+                  <option value="">All Farm Categories</option>
+                  <option value="cat_fe_tractors">Tractors & Attachments</option>
+                  <option value="cat_fe_harvesters">Harvesters & Threshers</option>
+                  <option value="cat_fe_tillers">Power Tillers & Weeders</option>
+                  <option value="cat_fe_sprayers">Sprayers & Dusters</option>
+                  <option value="cat_fe_seeders">Seed Drills & Planters</option>
+                  <option value="cat_fe_irrigation">Irrigation & High Flow Pumps</option>
+                  <option value="cat_fe_trailers">Trailers & Haulage</option>
+                </select>
+              </div>
+
+              <!-- Location -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Location / Town</label>
+                <input type="text" id="filterCity" class="form-control form-control-sm" placeholder="Bhimavaram, Undi, etc.">
+              </div>
+
+              <!-- Max daily rate -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold d-flex justify-content-between">
+                  <span>Max Daily Rate:</span>
+                  <span class="text-revora-forest fw-bold" id="priceLabel">₹10,000</span>
+                </label>
+                <input type="range" class="form-range" id="filterPrice" min="200" max="10000" step="100" value="10000" oninput="document.getElementById('priceLabel').innerText = '₹' + this.value">
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="filterAvailable" checked>
+                <label class="form-check-label small" for="filterAvailable">Show only available machinery</label>
+              </div>
+
+              <button class="btn btn-revora-primary btn-sm w-100" onclick="applyFilters()">Apply Filters</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Listings Content -->
+        <div class="col-lg-9">
+          <!-- Results Count and Sort Bar -->
+          <div class="d-flex justify-content-between align-items-center mb-3 bg-white p-2 px-3 rounded-3 border border-revora-sage small">
+            <div><span class="fw-semibold" id="resultsCount">0</span> equipment items found</div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted d-none d-sm-inline">Sort:</span>
+              <select id="sortBy" class="form-select form-select-sm" style="width: auto;" onchange="applyFilters()">
+                <option value="newest">Newest First</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Listings Grid -->
+          <div class="row g-3" id="listingsContainer">
+            <div class="col-12 text-center py-5">
+              <div class="spinner-border text-revora-forest" role="status"></div>
+              <p class="text-muted mt-2">Loading farm machinery...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Filters Offcanvas -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterOffcanvasLabel">
+    <div class="offcanvas-header bg-revora-sage-light">
+      <h5 class="offcanvas-title fw-bold text-revora-dark" id="filterOffcanvasLabel"><i class="bi bi-funnel me-2"></i>Filter Equipment</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="mobileFilterContainer">
+      <!-- Injected clone of filters -->
+    </div>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal fade" id="rentalBookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="bookingModalLabel"><i class="bi bi-calendar2-check me-2"></i>Request Equipment Rental</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="bookingForm" onsubmit="submitRentalRequest(event)">
+          <div class="modal-body">
+            <input type="hidden" id="bookEquipmentId">
+            <div class="p-3 bg-light rounded-3 mb-3 border">
+              <div class="fw-bold" id="bookEquipmentTitle">Mahindra 575 DI Tractor</div>
+              <div class="small text-muted" id="bookEquipmentLocation">Bhimavaram</div>
+              <div class="text-revora-forest fw-bold mt-1" id="bookEquipmentPrice">₹1,800 / day</div>
+            </div>
+
+            <!-- Existing Booked Intervals Banner -->
+            <div id="bookedDatesNotice" class="alert alert-warning small py-2 d-none">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+              <strong>Notice:</strong> This machinery is already booked on certain dates. Overlapping requests will be rejected by server validation.
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Start Date *</label>
+                <input type="date" id="bookStartDate" class="form-control form-control-sm" required onchange="calculateRentalCost()">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">End Date *</label>
+                <input type="date" id="bookEndDate" class="form-control form-control-sm" required onchange="calculateRentalCost()">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Usage Purpose / Field Location</label>
+              <textarea id="bookNotes" class="form-control form-control-sm" rows="2" placeholder="e.g. Paddy field leveling near Undi canal, need operator if available..."></textarea>
+            </div>
+
+            <!-- Cost Calculation Box -->
+            <div class="p-3 rounded-3 bg-revora-sage-light border border-revora-sage">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Duration:</span>
+                <span class="fw-semibold" id="calcDays">0 Day(s)</span>
+              </div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Rental Estimate:</span>
+                <span class="fw-semibold" id="calcRental">₹0</span>
+              </div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Security Deposit (Refundable):</span>
+                <span class="fw-semibold" id="calcDeposit">₹0</span>
+              </div>
+              <hr class="my-2 border-secondary opacity-25">
+              <div class="d-flex justify-content-between fw-bold text-revora-forest">
+                <span>Total Demo Amount:</span>
+                <span id="calcTotal">₹0</span>
+              </div>
+            </div>
+
+            <div class="mt-2 small text-muted text-center">
+              <i class="bi bi-info-circle me-1"></i>No upfront payment required for demo requests. Owner reviews & confirms.
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4" id="submitBookBtn">Submit Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST EQUIPMENT MODAL -->
+  <div class="modal fade" id="addListingModal" tabindex="-1" aria-labelledby="addListingLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="addListingLabel"><i class="bi bi-plus-circle me-2"></i>List Farm Equipment for Rent</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="addListingForm" onsubmit="submitNewListing(event)">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label small fw-semibold">Equipment Title *</label>
+                <input type="text" id="newTitle" class="form-control form-control-sm" placeholder="e.g. John Deere 5050D Tractor with Rotavator" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Category *</label>
+                <select id="newCategory" class="form-select form-select-sm" required>
+                  <option value="cat_fe_tractors">Tractors & Attachments</option>
+                  <option value="cat_fe_harvesters">Harvesters & Threshers</option>
+                  <option value="cat_fe_tillers">Power Tillers & Weeders</option>
+                  <option value="cat_fe_sprayers">Sprayers & Dusters</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Brand / Manufacturer</label>
+                <input type="text" id="newBrand" class="form-control form-control-sm" placeholder="Mahindra, Kubota, VST...">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Model</label>
+                <input type="text" id="newModel" class="form-control form-control-sm" placeholder="575 DI / DC-68G">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Condition</label>
+                <select id="newCondition" class="form-select form-select-sm">
+                  <option value="Excellent">Excellent</option>
+                  <option value="Good">Good</option>
+                  <option value="Fair">Fair</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Price per Day (₹) *</label>
+                <input type="number" id="newPriceDay" class="form-control form-control-sm" placeholder="1800" min="50" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Price per Hour (₹) (Optional)</label>
+                <input type="number" id="newPriceHour" class="form-control form-control-sm" placeholder="350">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Security Deposit (₹)</label>
+                <input type="number" id="newDeposit" class="form-control form-control-sm" placeholder="2000" value="1000">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Specific Location / Village *</label>
+                <input type="text" id="newLocation" class="form-control form-control-sm" placeholder="Lankalakoderu Road, Bhimavaram" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold">City</label>
+                <input type="text" id="newCity" class="form-control form-control-sm" value="Bhimavaram" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold">PIN Code</label>
+                <input type="text" id="newPincode" class="form-control form-control-sm" value="534201" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Description & Equipment Specifications *</label>
+                <textarea id="newDescription" class="form-control form-control-sm" rows="3" placeholder="Describe HP, implements included, diesel consumption, and driver availability..." required></textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Equipment Photo (Upload or image link)</label>
+                <input type="file" id="newImageFile" class="form-control form-control-sm" accept="image/*">
+                <div class="form-text small">Max 5MB image. If left blank, a default verified farm machine image will be used.</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4" id="submitListingBtn">Publish Listing</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="revora-footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let currentListings = [];
+    let selectedEquipment = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RevoraApp.renderNavbar('farm-equipment');
+      RevoraApp.renderFooter();
+
+      // Setup mobile filter offcanvas sync
+      const filterContent = document.getElementById('filterContent');
+      const mobileFilterContainer = document.getElementById('mobileFilterContainer');
+      if (filterContent && mobileFilterContainer) {
+        mobileFilterContainer.innerHTML = filterContent.innerHTML;
+      }
+
+      // Check URL query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('search')) {
+        document.getElementById('filterKeyword').value = urlParams.get('search');
+      }
+      if (urlParams.get('city')) {
+        document.getElementById('filterCity').value = urlParams.get('city');
+      }
+
+      // Set min date on booking input to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('bookStartDate').min = today;
+      document.getElementById('bookEndDate').min = today;
+
+      // Live search as user types
+      let searchDebounce;
+      const kwInput = document.getElementById('filterKeyword');
+      if (kwInput) {
+        kwInput.addEventListener('input', () => {
+          clearTimeout(searchDebounce);
+          searchDebounce = setTimeout(() => loadEquipmentListings(), 250);
+        });
+      }
+
+      loadEquipmentListings();
+    });
+
+    async function loadEquipmentListings() {
+      const keyword = document.getElementById('filterKeyword').value.trim();
+      const category = document.getElementById('filterCategory').value;
+      const city = document.getElementById('filterCity').value.trim();
+      const maxPrice = document.getElementById('filterPrice').value;
+      const available = document.getElementById('filterAvailable').checked;
+      const sort = document.getElementById('sortBy').value;
+
+      let url = `/equipment?section=farm_equipment&max_price=${maxPrice}`;
+      if (keyword) url += `&search=${encodeURIComponent(keyword)}`;
+      if (category) url += `&category=${encodeURIComponent(category)}`;
+      if (city) url += `&city=${encodeURIComponent(city)}`;
+      if (available) url += `&available=1`;
+      if (sort === 'price_asc') url += `&sort=price_asc`;
+      if (sort === 'price_desc') url += `&sort=price_desc`;
+
+      try {
+        const data = await RevoraApp.fetchApi(url);
+        currentListings = data.listings || [];
+        renderListings(currentListings);
+      } catch (err) {
+        document.getElementById('listingsContainer').innerHTML = `
+          <div class="col-12 text-center py-5 text-danger">
+            <i class="bi bi-exclamation-triangle fs-2"></i>
+            <p class="mt-2">Failed to load equipment: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderListings(listings) {
+      document.getElementById('resultsCount').innerText = listings.length;
+      const container = document.getElementById('listingsContainer');
+
+      if (!listings || listings.length === 0) {
+        container.innerHTML = `
+          <div class="col-12 text-center py-5 product-card-animate">
+            <div class="p-4 bg-white rounded-4 border border-revora-sage d-inline-block">
+              <i class="bi bi-search text-muted fs-1 mb-3"></i>
+              <h5 class="fw-bold">No farm machinery matches your filter</h5>
+              <p class="text-muted small">Try expanding your price range or clearing keyword filters.</p>
+              <button class="btn btn-revora-outline btn-sm" onclick="resetFilters()">Reset All Filters</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = listings.map((item, idx) => `
+        <div class="col-12 col-md-6 col-xl-4 product-card-animate" style="animation-delay: ${idx * 0.05}s;" id="item-${item.id}">
+          <div class="revora-card h-100 d-flex flex-column">
+            <div class="revora-card-img-wrapper">
+              <img src="${item.images[0] || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=800'}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/400x300/15803d/ffffff?text=REVORA';">
+              ${item.is_demo ? '<span class="position-absolute top-0 start-0 m-2 badge badge-demo">Demo Machinery</span>' : ''}
+              <span class="position-absolute bottom-0 end-0 m-2 badge badge-revora-tag">${item.category_name}</span>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 small fw-bold">
+                  <i class="bi bi-patch-check-fill me-1"></i>Verified
+                </span>
+                <span class="badge ${item.is_available ? 'bg-success' : 'bg-secondary'} bg-opacity-75 small">
+                  ${item.is_available ? 'Available' : 'Currently Rented'}
+                </span>
+              </div>
+              <h5 class="fw-bold mb-1 text-truncate" title="${item.title}" style="color: var(--re-text-main); font-size: 1.05rem;">${item.title}</h5>
+              <p class="text-muted small mb-2 text-truncate-2" style="font-size: 0.82rem; height: 38px; overflow: hidden;">${item.description}</p>
+              
+              <div class="small text-muted mb-1">
+                <i class="bi bi-geo-alt me-1 text-revora-forest"></i>${item.location} (${item.city})
+              </div>
+
+              <div class="small text-muted mb-3">
+                <i class="bi bi-person me-1"></i>Owner: ${item.owner_name}
+              </div>
+
+              <div class="mt-auto pt-2 border-top border-revora-sage d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="fs-5 fw-bold text-revora-forest">₹${Number(item.price_per_day).toLocaleString('en-IN')}</span>
+                  <span class="small text-muted">/day</span>
+                  ${item.price_per_hour ? `<div class="small text-muted" style="font-size: 0.72rem;">or ₹${Number(item.price_per_hour).toLocaleString('en-IN')}/hr</div>` : ''}
+                </div>
+                <button class="btn btn-revora-primary btn-sm px-3 fw-bold" onclick="openBookingModal('${item.id}')">
+                  <i class="bi bi-calendar-check me-1"></i>Book Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function applyFilters() {
+      loadEquipmentListings();
+    }
+
+    function resetFilters() {
+      document.getElementById('filterKeyword').value = '';
+      document.getElementById('filterCategory').value = '';
+      document.getElementById('filterCity').value = '';
+      document.getElementById('filterPrice').value = '10000';
+      document.getElementById('priceLabel').innerText = '₹10,000';
+      document.getElementById('filterAvailable').checked = true;
+      document.getElementById('sortBy').value = 'newest';
+      loadEquipmentListings();
+    }
+
+    async function openBookingModal(equipmentId) {
+      if (!RevoraApp.getUser()) {
+        RevoraApp.showToast('Please sign in or create an account to request a rental.', 'warning');
+        setTimeout(() => {
+          window.location.href = `/auth.html?mode=login&redirect=${encodeURIComponent(window.location.pathname)}`;
+        }, 1200);
+        return;
+      }
+
+      try {
+        const data = await RevoraApp.fetchApi(`/equipment/${equipmentId}`);
+        selectedEquipment = data.equipment;
+
+        document.getElementById('bookEquipmentId').value = selectedEquipment.id;
+        document.getElementById('bookEquipmentTitle').innerText = selectedEquipment.title;
+        document.getElementById('bookEquipmentLocation').innerText = `${selectedEquipment.location}, ${selectedEquipment.city}`;
+        document.getElementById('bookEquipmentPrice').innerText = `₹${selectedEquipment.price_per_day} / day (Deposit: ₹${selectedEquipment.security_deposit || 0})`;
+
+        const notice = document.getElementById('bookedDatesNotice');
+        if (selectedEquipment.booked_intervals && selectedEquipment.booked_intervals.length > 0) {
+          const bookedStr = selectedEquipment.booked_intervals.map(b => `${b.start_date} to ${b.end_date}`).join(', ');
+          notice.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i><strong>Notice:</strong> Already booked on: ${bookedStr}. Choose dates outside this range.`;
+          notice.classList.remove('d-none');
+        } else {
+          notice.classList.add('d-none');
+        }
+
+        // Set default dates: tomorrow and day after
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dayAfter = new Date();
+        dayAfter.setDate(dayAfter.getDate() + 2);
+
+        document.getElementById('bookStartDate').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('bookEndDate').value = dayAfter.toISOString().split('T')[0];
+
+        calculateRentalCost();
+
+        const modal = new bootstrap.Modal(document.getElementById('rentalBookingModal'));
+        modal.show();
+      } catch (err) {
+        RevoraApp.showToast('Failed to load equipment booking details: ' + err.message, 'error');
+      }
+    }
+
+    function calculateRentalCost() {
+      if (!selectedEquipment) return;
+      const start = new Date(document.getElementById('bookStartDate').value);
+      const end = new Date(document.getElementById('bookEndDate').value);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) {
+        document.getElementById('calcDays').innerText = 'Invalid dates';
+        document.getElementById('calcRental').innerText = '₹0';
+        document.getElementById('calcTotal').innerText = '₹0';
+        return;
+      }
+
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const days = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+      const rentalCost = days * selectedEquipment.price_per_day;
+      const deposit = selectedEquipment.security_deposit || 0;
+      const total = rentalCost + deposit;
+
+      document.getElementById('calcDays').innerText = `${days} Day(s)`;
+      document.getElementById('calcRental').innerText = `₹${rentalCost.toLocaleString()}`;
+      document.getElementById('calcDeposit').innerText = `₹${deposit.toLocaleString()}`;
+      document.getElementById('calcTotal').innerText = `₹${total.toLocaleString()}`;
+    }
+
+    async function submitRentalRequest(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBookBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+
+      const equipmentId = document.getElementById('bookEquipmentId').value;
+      const payload = {
+        start_date: document.getElementById('bookStartDate').value,
+        end_date: document.getElementById('bookEndDate').value,
+        notes: document.getElementById('bookNotes').value
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi(`/equipment/${equipmentId}/book`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('rentalBookingModal')).hide();
+        setTimeout(() => {
+          window.location.href = '/dashboard.html?tab=rentals';
+        }, 1500);
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Request';
+      }
+    }
+
+    function openAddListingModal() {
+      const user = RevoraApp.getUser();
+      if (!user) {
+        RevoraApp.showToast('Please sign in to list equipment.', 'warning');
+        setTimeout(() => {
+          window.location.href = '/auth.html?mode=login';
+        }, 1200);
+        return;
+      }
+      const modal = new bootstrap.Modal(document.getElementById('addListingModal'));
+      modal.show();
+    }
+
+    async function submitNewListing(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitListingBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Publishing...';
+
+      let imageUrl = null;
+      const fileInput = document.getElementById('newImageFile');
+      if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        try {
+          const upRes = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${RevoraApp.getToken()}` },
+            body: formData
+          });
+          const upData = await upRes.json();
+          if (upData.success) {
+            imageUrl = upData.imageUrl;
+          }
+        } catch (uErr) {
+          console.warn('Upload fallback to default image');
+        }
+      }
+
+      const payload = {
+        section: 'farm_equipment',
+        title: document.getElementById('newTitle').value,
+        category_id: document.getElementById('newCategory').value,
+        brand: document.getElementById('newBrand').value,
+        model: document.getElementById('newModel').value,
+        condition: document.getElementById('newCondition').value,
+        price_per_day: document.getElementById('newPriceDay').value,
+        price_per_hour: document.getElementById('newPriceHour').value,
+        security_deposit: document.getElementById('newDeposit').value,
+        location: document.getElementById('newLocation').value,
+        city: document.getElementById('newCity').value,
+        pincode: document.getElementById('newPincode').value,
+        description: document.getElementById('newDescription').value,
+        images: imageUrl ? [imageUrl] : []
+      };
+
+      try {
+        const res = await RevoraApp.fetchApi('/equipment', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('addListingModal')).hide();
+        document.getElementById('addListingForm').reset();
+        loadEquipmentListings();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Publish Listing';
+      }
+    }
+  </script>
+</body>
+</html>

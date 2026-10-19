@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Dashboard — REVORA | Bhimavaram</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+  <div id="revora-header-container"></div>
+
+  <main class="py-4">
+    <div class="container">
+      <!-- User Profile Header Banner -->
+      <div class="p-4 bg-white rounded-4 border border-revora-sage shadow-sm mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-revora-sage text-revora-forest d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 64px; height: 64px;" id="userAvatarPlaceholder">
+              U
+            </div>
+            <div>
+              <h2 class="h4 fw-bold mb-1" id="dashUserName">Loading...</h2>
+              <div class="text-muted small mb-1">
+                <i class="bi bi-envelope me-1"></i><span id="dashUserEmail">email@example.com</span>
+                <span class="mx-2">•</span>
+                <i class="bi bi-geo-alt me-1 text-revora-forest"></i><span id="dashUserCity">Bhimavaram</span>
+              </div>
+              <div class="d-flex gap-1 flex-wrap" id="dashRolesBadges">
+                <!-- Injected badges -->
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="openProfileEditModal()">
+              <i class="bi bi-pencil me-1"></i>Edit Profile
+            </button>
+            <button class="btn btn-outline-danger btn-sm" onclick="RevoraApp.logout()">
+              <i class="bi bi-box-arrow-right me-1"></i>Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Layout with Responsive Sidebar / Tabs -->
+      <div class="row g-4">
+        <!-- Sidebar Navigation (Desktop) / Mobile Toggle -->
+        <div class="col-lg-3">
+          <div class="bg-white p-3 rounded-4 border border-revora-sage shadow-sm sticky-top" style="top: 85px;">
+            <div class="nav flex-column nav-pills gap-1" id="dashTabList" role="tablist">
+              <button class="nav-link text-start active d-flex align-items-center gap-2" id="tab-overview-btn" data-bs-toggle="pill" data-bs-target="#tab-overview" type="button" role="tab">
+                <i class="bi bi-grid-1x2"></i> Overview
+              </button>
+              <button class="nav-link text-start d-flex align-items-center gap-2" id="tab-rentals-btn" data-bs-toggle="pill" data-bs-target="#tab-rentals" type="button" role="tab">
+                <i class="bi bi-truck"></i> My Equipment Rentals
+              </button>
+              <button class="nav-link text-start d-flex align-items-center gap-2" id="tab-orders-btn" data-bs-toggle="pill" data-bs-target="#tab-orders" type="button" role="tab">
+                <i class="bi bi-basket3"></i> My Produce Orders
+              </button>
+              <button class="nav-link text-start d-flex align-items-center gap-2" id="tab-services-btn" data-bs-toggle="pill" data-bs-target="#tab-services" type="button" role="tab">
+                <i class="bi bi-tools"></i> My Service Bookings
+              </button>
+
+              <!-- Dynamic Role-Specific Sidebar Tabs -->
+              <div id="roleTabsGroup" class="pt-2 mt-2 border-top">
+                <!-- Injected tabs for Farmer, Owner, Provider, Admin -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Tab Panes Content -->
+        <div class="col-lg-9">
+          <div class="tab-content" id="dashTabContent">
+            
+            <!-- 1. OVERVIEW PANE -->
+            <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                  <div class="p-3 bg-white rounded-4 border border-revora-sage shadow-sm">
+                    <div class="text-muted small fw-semibold">Active Rentals</div>
+                    <div class="h3 fw-bold text-revora-forest mb-0 mt-1" id="statRentals">0</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                  <div class="p-3 bg-white rounded-4 border border-revora-sage shadow-sm">
+                    <div class="text-muted small fw-semibold">Produce Orders</div>
+                    <div class="h3 fw-bold text-revora-forest mb-0 mt-1" id="statOrders">0</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                  <div class="p-3 bg-white rounded-4 border border-revora-sage shadow-sm">
+                    <div class="text-muted small fw-semibold">Service Visits</div>
+                    <div class="h3 fw-bold text-revora-forest mb-0 mt-1" id="statServices">0</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                  <div class="p-3 bg-white rounded-4 border border-revora-sage shadow-sm">
+                    <div class="text-muted small fw-semibold">Community Town</div>
+                    <div class="h4 fw-bold text-revora-forest mb-0 mt-1">Bhimavaram</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notifications Alert Card -->
+              <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-bell me-2 text-revora-forest"></i>Recent Activity & Updates</h5>
+                  <button class="btn btn-sm btn-link text-muted" onclick="markAllNotificationsRead()">Mark all read</button>
+                </div>
+                <div class="card-body p-0">
+                  <div class="list-group list-group-flush" id="notificationsList">
+                    <div class="p-4 text-center text-muted">No unread notifications.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. MY RENTALS PANE -->
+            <div class="tab-pane fade" id="tab-rentals" role="tabpanel">
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-truck me-2 text-revora-forest"></i>My Equipment & Tool Rentals</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Equipment</th>
+                          <th>Dates</th>
+                          <th>Duration</th>
+                          <th>Total Cost</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="myRentalsTable">
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No equipment rentals booked yet.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. MY ORDERS PANE -->
+            <div class="tab-pane fade" id="tab-orders" role="tabpanel">
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-basket3 me-2 text-revora-forest"></i>My Farm Produce Orders</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Order ID</th>
+                          <th>Date</th>
+                          <th>Delivery Address</th>
+                          <th>Amount</th>
+                          <th>Status</th>
+                          <th>Payment</th>
+                        </tr>
+                      </thead>
+                      <tbody id="myOrdersTable">
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No produce orders placed yet.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. MY SERVICE BOOKINGS PANE -->
+            <div class="tab-pane fade" id="tab-services" role="tabpanel">
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-tools me-2 text-revora-forest"></i>My Home Service Appointments</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Specialist</th>
+                          <th>Scheduled Slot</th>
+                          <th>Problem Description</th>
+                          <th>Visit Charge</th>
+                          <th>Status</th>
+                          <th>Review</th>
+                        </tr>
+                      </thead>
+                      <tbody id="myServicesTable">
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No service visits scheduled yet.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. FARMER INVENTORY & ORDERS PANE -->
+            <div class="tab-pane fade" id="tab-farmer" role="tabpanel">
+              <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-flower1 me-2 text-revora-forest"></i>Farmer Produce Inventory</h5>
+                  <a href="/marketplace.html" class="btn btn-revora-primary btn-sm">Add New Crop</a>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Crop / Produce</th>
+                          <th>Category</th>
+                          <th>Price</th>
+                          <th>Available Stock</th>
+                          <th>Farming Method</th>
+                        </tr>
+                      </thead>
+                      <tbody id="farmerProductsTable">
+                        <tr><td colspan="5" class="text-center py-4 text-muted">No crops listed under your farmer profile.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-bag-check me-2 text-revora-forest"></i>Incoming Orders from Customers</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Order ID</th>
+                          <th>Customer</th>
+                          <th>Items</th>
+                          <th>Subtotal</th>
+                          <th>Status</th>
+                          <th>Update Status</th>
+                        </tr>
+                      </thead>
+                      <tbody id="farmerIncomingOrdersTable">
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No incoming customer orders.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. EQUIPMENT OWNER LISTINGS & REQUESTS PANE -->
+            <div class="tab-pane fade" id="tab-owner" role="tabpanel">
+              <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-gear-wide-connected me-2 text-revora-forest"></i>Equipment Management</h5>
+                  <a href="/farm-equipment.html" class="btn btn-revora-primary btn-sm">List New Machine</a>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Title</th>
+                          <th>Type</th>
+                          <th>Rate/Day</th>
+                          <th>Deposit</th>
+                          <th>Availability</th>
+                        </tr>
+                      </thead>
+                      <tbody id="ownerListingsTable">
+                        <tr><td colspan="5" class="text-center py-4 text-muted">No equipment listings found.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Owner Action: Approve / Reject Rental Requests -->
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-inbox me-2 text-revora-forest"></i>Incoming Rental Booking Requests</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Renter</th>
+                          <th>Equipment</th>
+                          <th>Dates</th>
+                          <th>Total Amount</th>
+                          <th>Current Status</th>
+                          <th>Owner Decision</th>
+                        </tr>
+                      </thead>
+                      <tbody id="ownerIncomingBookingsTable">
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No pending rental requests.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. SERVICE PROVIDER JOBS PANE -->
+            <div class="tab-pane fade" id="tab-provider" role="tabpanel">
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-briefcase me-2 text-revora-forest"></i>Incoming Service Callouts</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead class="table-light small">
+                        <tr>
+                          <th>Customer</th>
+                          <th>Date & Slot</th>
+                          <th>Address</th>
+                          <th>Problem Description</th>
+                          <th>Status</th>
+                          <th>Decision</th>
+                        </tr>
+                      </thead>
+                      <tbody id="providerJobsTable">
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No service appointments scheduled.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 8. ADMINISTRATOR PANE -->
+            <div class="tab-pane fade" id="tab-admin" role="tabpanel">
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-lg-3">
+                  <div class="p-3 bg-white rounded-4 border shadow-sm">
+                    <div class="text-muted small">Registered Users</div>
+                    <div class="h3 fw-bold text-primary mb-0" id="adminUsersCount">0</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="p-3 bg-white rounded-4 border shadow-sm">
+                    <div class="text-muted small">Farm Machines</div>
+                    <div class="h3 fw-bold text-success mb-0" id="adminEquipmentCount">0</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="p-3 bg-white rounded-4 border shadow-sm">
+                    <div class="text-muted small">Produce Orders</div>
+                    <div class="h3 fw-bold text-warning mb-0" id="adminOrdersCount">0</div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="p-3 bg-white rounded-4 border shadow-sm">
+                    <div class="text-muted small">Service Bookings</div>
+                    <div class="h3 fw-bold text-info mb-0" id="adminServiceCount">0</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                  <h5 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Platform User Directory (Admin)</h5>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                      <thead class="table-light">
+                        <tr>
+                          <th>User ID</th>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Phone</th>
+                          <th>Roles</th>
+                          <th>Town</th>
+                        </tr>
+                      </thead>
+                      <tbody id="adminUsersTable"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- REVIEW SUBMISSION MODAL -->
+  <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-revora-forest text-white">
+          <h5 class="modal-title fw-bold" id="reviewLabel"><i class="bi bi-star-fill me-2"></i>Leave Verified Review</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="reviewForm" onsubmit="submitVerifiedReview(event)">
+          <div class="modal-body">
+            <input type="hidden" id="revTargetType">
+            <input type="hidden" id="revTargetId">
+            <input type="hidden" id="revBookingId">
+
+            <div class="mb-3 text-center">
+              <label class="form-label small fw-semibold d-block">Rating</label>
+              <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="ratingRadio" id="rate5" value="5" checked>
+                <label class="btn btn-outline-warning" for="rate5">⭐⭐⭐⭐⭐ 5</label>
+                <input type="radio" class="btn-check" name="ratingRadio" id="rate4" value="4">
+                <label class="btn btn-outline-warning" for="rate4">⭐⭐⭐⭐ 4</label>
+                <input type="radio" class="btn-check" name="ratingRadio" id="rate3" value="3">
+                <label class="btn btn-outline-warning" for="rate3">⭐⭐⭐ 3</label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Your Review & Feedback *</label>
+              <textarea id="revComment" class="form-control form-control-sm" rows="3" placeholder="Share your experience with the equipment, delivery, or service specialist..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-revora-primary btn-sm px-4">Submit Review</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="revora-footer-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let dashboardData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      RevoraApp.renderNavbar('dashboard');
+      RevoraApp.renderFooter();
+
+      const user = RevoraApp.getUser();
+      if (!user) {
+        window.location.href = '/auth.html?mode=login';
+        return;
+      }
+
+      setupUserProfile(user);
+      loadDashboardSummary();
+
+      // Check tab param
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab) {
+        const targetBtn = document.getElementById(`tab-${tab}-btn`);
+        if (targetBtn) {
+          bootstrap.Tab.getInstance(targetBtn) ? bootstrap.Tab.getInstance(targetBtn).show() : new bootstrap.Tab(targetBtn).show();
+        }
+      }
+    });
+
+    function setupUserProfile(user) {
+      document.getElementById('dashUserName').innerText = user.name;
+      document.getElementById('dashUserEmail').innerText = user.email;
+      document.getElementById('dashUserCity').innerText = user.city || 'Bhimavaram';
+      document.getElementById('userAvatarPlaceholder').innerText = user.name.charAt(0).toUpperCase();
+
+      const roles = user.roles || ['customer'];
+      document.getElementById('dashRolesBadges').innerHTML = roles.map(r => `
+        <span class="badge bg-revora-sage text-revora-forest small text-uppercase">${r.replace('_', ' ')}</span>
+      `).join('');
+
+      // Setup Role-specific Sidebar tabs
+      const roleTabsGroup = document.getElementById('roleTabsGroup');
+      let tabsHtml = '';
+
+      if (roles.includes('farmer') || roles.includes('admin')) {
+        tabsHtml += `
+          <button class="nav-link text-start d-flex align-items-center gap-2" id="tab-farmer-btn" data-bs-toggle="pill" data-bs-target="#tab-farmer" type="button" role="tab">
+            <i class="bi bi-flower1 text-success"></i> Farmer Produce Hub
+          </button>
+        `;
+      }
+
+      if (roles.includes('equipment_owner') || roles.includes('farmer') || roles.includes('admin')) {
+        tabsHtml += `
+          <button class="nav-link text-start d-flex align-items-center gap-2" id="tab-owner-btn" data-bs-toggle="pill" data-bs-target="#tab-owner" type="button" role="tab">
+            <i class="bi bi-gear-wide-connected text-primary"></i> Equipment Owner Hub
+          </button>
+        `;
+      }
+
+      if (roles.includes('service_provider') || roles.includes('admin')) {
+        tabsHtml += `
+          <button class="nav-link text-start d-flex align-items-center gap-2" id="tab-provider-btn" data-bs-toggle="pill" data-bs-target="#tab-provider" type="button" role="tab">
+            <i class="bi bi-briefcase text-warning"></i> Service Provider Desk
+          </button>
+        `;
+      }
+
+      if (roles.includes('admin')) {
+        tabsHtml += `
+          <button class="nav-link text-start d-flex align-items-center gap-2 text-danger fw-bold" id="tab-admin-btn" data-bs-toggle="pill" data-bs-target="#tab-admin" type="button" role="tab">
+            <i class="bi bi-shield-shaded"></i> Administrator Desk
+          </button>
+        `;
+      }
+
+      roleTabsGroup.innerHTML = tabsHtml;
+    }
+
+    async function loadDashboardSummary() {
+      try {
+        const res = await RevoraApp.fetchApi('/dashboard/summary');
+        dashboardData = res.summary;
+        renderDashboardData(dashboardData);
+        loadNotifications();
+      } catch (err) {
+        RevoraApp.showToast('Error loading dashboard: ' + err.message, 'error');
+      }
+    }
+
+    function renderDashboardData(data) {
+      // Stats
+      document.getElementById('statRentals').innerText = data.rentals ? data.rentals.length : 0;
+      document.getElementById('statOrders').innerText = data.orders ? data.orders.length : 0;
+      document.getElementById('statServices').innerText = data.serviceBookings ? data.serviceBookings.length : 0;
+
+      // 1. My Rentals Table
+      const rentalsTbody = document.getElementById('myRentalsTable');
+      if (data.rentals && data.rentals.length > 0) {
+        rentalsTbody.innerHTML = data.rentals.map(r => `
+          <tr>
+            <td>
+              <div class="fw-bold">${r.equipment_title}</div>
+              <div class="small text-muted">Owner: ${r.owner_name} (${r.owner_phone})</div>
+            </td>
+            <td class="small">${r.start_date} to ${r.end_date}</td>
+            <td class="small">${r.total_duration_days} Day(s)</td>
+            <td class="fw-bold text-revora-forest">₹${r.total_amount.toLocaleString()}</td>
+            <td><span class="badge ${getStatusBadgeClass(r.status)}">${r.status.toUpperCase()}</span></td>
+            <td>
+              ${r.status === 'pending' ? `<button class="btn btn-xs btn-outline-danger py-1 px-2 small" onclick="updateBookingStatus('${r.id}', 'cancelled')">Cancel</button>` : ''}
+              ${r.status === 'completed' ? `<button class="btn btn-xs btn-revora-outline py-1 px-2 small" onclick="openReviewModal('equipment', '${r.equipment_id}', '${r.id}')">Review</button>` : ''}
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // 2. My Orders Table
+      const ordersTbody = document.getElementById('myOrdersTable');
+      if (data.orders && data.orders.length > 0) {
+        ordersTbody.innerHTML = data.orders.map(o => `
+          <tr>
+            <td class="fw-bold small">#${o.id}</td>
+            <td class="small text-muted">${new Date(o.created_at).toLocaleDateString()}</td>
+            <td class="small">${o.delivery_address}, ${o.delivery_city}</td>
+            <td class="fw-bold text-revora-forest">₹${o.total_amount.toLocaleString()}</td>
+            <td><span class="badge ${getStatusBadgeClass(o.order_status)}">${o.order_status.replace(/_/g, ' ').toUpperCase()}</span></td>
+            <td><span class="badge bg-light text-dark border small">${o.payment_method}</span></td>
+          </tr>
+        `).join('');
+      }
+
+      // 3. My Service Bookings Table
+      const srvTbody = document.getElementById('myServicesTable');
+      if (data.serviceBookings && data.serviceBookings.length > 0) {
+        srvTbody.innerHTML = data.serviceBookings.map(sb => `
+          <tr>
+            <td>
+              <div class="fw-bold">${sb.provider_name}</div>
+              <div class="small text-muted">${sb.profession_title} (${sb.provider_phone})</div>
+            </td>
+            <td class="small">${sb.scheduled_date}<br>${sb.scheduled_time_slot}</td>
+            <td class="small text-truncate" style="max-width: 180px;">${sb.problem_description}</td>
+            <td class="fw-bold text-revora-forest">₹${sb.estimated_cost}</td>
+            <td><span class="badge ${getStatusBadgeClass(sb.status)}">${sb.status.toUpperCase()}</span></td>
+            <td>
+              ${sb.status === 'accepted' ? `<button class="btn btn-xs btn-outline-danger py-1 px-2 small" onclick="updateServiceStatus('${sb.id}', 'cancelled')">Cancel</button>` : ''}
+              ${sb.status === 'completed' ? `<button class="btn btn-xs btn-revora-outline py-1 px-2 small" onclick="openReviewModal('service_provider', '${sb.provider_id}', '${sb.id}')">Review</button>` : ''}
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // 4. Farmer Hub Data
+      if (data.products) {
+        const fProdTbody = document.getElementById('farmerProductsTable');
+        if (data.products.length > 0) {
+          fProdTbody.innerHTML = data.products.map(p => `
+            <tr>
+              <td class="fw-bold">${p.title}</td>
+              <td class="small">${p.category_name}</td>
+              <td class="fw-bold text-revora-forest">₹${p.price_per_unit}/${p.unit}</td>
+              <td class="fw-semibold ${p.available_stock > 0 ? 'text-success' : 'text-danger'}">${p.available_stock} ${p.unit}</td>
+              <td class="small">${p.farming_method}</td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      if (data.incomingProduceOrders) {
+        const fOrdersTbody = document.getElementById('farmerIncomingOrdersTable');
+        if (data.incomingProduceOrders.length > 0) {
+          fOrdersTbody.innerHTML = data.incomingProduceOrders.map(io => `
+            <tr>
+              <td class="fw-bold small">#${io.order_id}</td>
+              <td class="small">${io.customer_name}<br>${io.customer_phone}</td>
+              <td class="small">${io.quantity} ${io.unit} of ${io.product_title}</td>
+              <td class="fw-bold text-revora-forest">₹${io.subtotal}</td>
+              <td><span class="badge ${getStatusBadgeClass(io.order_status)}">${io.order_status.replace(/_/g, ' ').toUpperCase()}</span></td>
+              <td>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="updateProduceOrderStatus('${io.order_id}', this.value)">
+                  <option value="">Update...</option>
+                  <option value="confirmed">Confirm</option>
+                  <option value="out_for_delivery">Out for Delivery</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancel</option>
+                </select>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      // 5. Equipment Owner Hub Data
+      if (data.listings) {
+        const oListTbody = document.getElementById('ownerListingsTable');
+        if (data.listings.length > 0) {
+          oListTbody.innerHTML = data.listings.map(l => `
+            <tr>
+              <td class="fw-bold">${l.title}</td>
+              <td class="small">${l.section === 'farm_equipment' ? 'Agricultural Machinery' : 'General Tool'}</td>
+              <td class="fw-bold text-revora-forest">₹${l.price_per_day}</td>
+              <td class="small">₹${l.security_deposit || 0}</td>
+              <td><span class="badge ${l.is_available ? 'bg-success' : 'bg-secondary'}">${l.is_available ? 'Available' : 'Unavailable'}</span></td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      if (data.incomingRentalRequests) {
+        const oReqTbody = document.getElementById('ownerIncomingBookingsTable');
+        if (data.incomingRentalRequests.length > 0) {
+          oReqTbody.innerHTML = data.incomingRentalRequests.map(req => `
+            <tr>
+              <td>
+                <div class="fw-bold">${req.renter_name}</div>
+                <div class="small text-muted">${req.renter_phone} (${req.renter_city})</div>
+              </td>
+              <td class="small">${req.equipment_title}</td>
+              <td class="small">${req.start_date} to ${req.end_date} (${req.total_duration_days}d)</td>
+              <td class="fw-bold text-revora-forest">₹${req.total_amount}</td>
+              <td><span class="badge ${getStatusBadgeClass(req.status)}">${req.status.toUpperCase()}</span></td>
+              <td>
+                ${req.status === 'pending' ? `
+                  <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-success py-1 px-2" onclick="decideBooking('${req.id}', 'approved')">Approve</button>
+                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="decideBooking('${req.id}', 'rejected')">Reject</button>
+                  </div>
+                ` : `<span class="small text-muted">Completed</span>`}
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      // 6. Service Provider Jobs
+      if (data.incomingServiceJobs) {
+        const pJobTbody = document.getElementById('providerJobsTable');
+        if (data.incomingServiceJobs.length > 0) {
+          pJobTbody.innerHTML = data.incomingServiceJobs.map(job => `
+            <tr>
+              <td>
+                <div class="fw-bold">${job.customer_name}</div>
+                <div class="small text-muted">${job.customer_phone}</div>
+              </td>
+              <td class="small">${job.scheduled_date}<br>${job.scheduled_time_slot}</td>
+              <td class="small">${job.service_address}</td>
+              <td class="small text-truncate" style="max-width: 180px;">${job.problem_description}</td>
+              <td><span class="badge ${getStatusBadgeClass(job.status)}">${job.status.toUpperCase()}</span></td>
+              <td>
+                ${job.status === 'pending' ? `
+                  <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-success py-1 px-2" onclick="decideServiceJob('${job.id}', 'accepted')">Accept</button>
+                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="decideServiceJob('${job.id}', 'rejected')">Decline</button>
+                  </div>
+                ` : `
+                  <select class="form-select form-select-sm" style="width: auto;" onchange="decideServiceJob('${job.id}', this.value)">
+                    <option value="">Update...</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancel</option>
+                  </select>
+                `}
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      // 7. Admin Metrics & Users
+      if (data.adminStats) {
+        document.getElementById('adminUsersCount').innerText = data.adminStats.totalUsers;
+        document.getElementById('adminEquipmentCount').innerText = data.adminStats.totalEquipment + data.adminStats.totalResources;
+        document.getElementById('adminOrdersCount').innerText = data.adminStats.totalOrders;
+        document.getElementById('adminServiceCount').innerText = data.adminStats.totalServiceBookings;
+
+        const aUsersTbody = document.getElementById('adminUsersTable');
+        if (data.adminStats.allUsers) {
+          aUsersTbody.innerHTML = data.adminStats.allUsers.map(u => `
+            <tr>
+              <td><code>${u.id}</code></td>
+              <td class="fw-bold">${u.name}</td>
+              <td>${u.email}</td>
+              <td>${u.phone || '-'}</td>
+              <td><span class="badge bg-light text-dark border">${u.roles}</span></td>
+              <td>${u.city}</td>
+            </tr>
+          `).join('');
+        }
+      }
+    }
+
+    async function loadNotifications() {
+      try {
+        const res = await RevoraApp.fetchApi('/notifications');
+        const container = document.getElementById('notificationsList');
+        if (res.notifications && res.notifications.length > 0) {
+          container.innerHTML = res.notifications.slice(0, 8).map(n => `
+            <a href="${n.link || '#'}" class="list-group-item list-group-item-action p-3 d-flex align-items-start gap-3 ${n.is_read ? '' : 'bg-revora-sage-light'}">
+              <i class="bi ${n.type === 'order' ? 'bi-basket3 text-warning' : n.type === 'booking' ? 'bi-calendar-check text-success' : 'bi-info-circle text-primary'} fs-5"></i>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="mb-0 fw-bold small">${n.title}</h6>
+                  <span class="text-muted" style="font-size: 0.72rem;">${new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+                <p class="mb-0 text-muted small">${n.message}</p>
+              </div>
+            </a>
+          `).join('');
+        } else {
+          container.innerHTML = '<div class="p-3 text-center text-muted small">No notifications at this time.</div>';
+        }
+      } catch (err) {}
+    }
+
+    async function markAllNotificationsRead() {
+      try {
+        await RevoraApp.fetchApi('/notifications/mark-all-read', { method: 'PATCH' });
+        RevoraApp.showToast('All notifications marked as read.');
+        loadNotifications();
+      } catch (e) {}
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'approved':
+        case 'confirmed':
+        case 'accepted':
+        case 'delivered':
+        case 'completed':
+          return 'bg-success';
+        case 'pending':
+          return 'bg-warning text-dark';
+        case 'in_progress':
+        case 'out_for_delivery':
+          return 'bg-info text-dark';
+        case 'rejected':
+        case 'cancelled':
+          return 'bg-danger';
+        default:
+          return 'bg-secondary';
+      }
+    }
+
+    // Booking approval actions (Owner decision)
+    async function decideBooking(bookingId, status) {
+      try {
+        await RevoraApp.fetchApi(`/equipment/bookings/${bookingId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status })
+        });
+        RevoraApp.showToast(`Booking marked as ${status}.`);
+        loadDashboardSummary();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      }
+    }
+
+    async function updateBookingStatus(bookingId, status) {
+      if (!confirm(`Are you sure you want to mark this booking as ${status}?`)) return;
+      decideBooking(bookingId, status);
+    }
+
+    async function updateProduceOrderStatus(orderId, status) {
+      if (!status) return;
+      try {
+        await RevoraApp.fetchApi(`/marketplace/orders/${orderId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status })
+        });
+        RevoraApp.showToast(`Order updated to ${status}.`);
+        loadDashboardSummary();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      }
+    }
+
+    async function decideServiceJob(bookingId, status) {
+      if (!status) return;
+      try {
+        await RevoraApp.fetchApi(`/services/bookings/${bookingId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status })
+        });
+        RevoraApp.showToast(`Service appointment ${status}.`);
+        loadDashboardSummary();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      }
+    }
+
+    async function updateServiceStatus(bookingId, status) {
+      if (!confirm(`Cancel this service visit?`)) return;
+      decideServiceJob(bookingId, status);
+    }
+
+    function openReviewModal(targetType, targetId, bookingId) {
+      document.getElementById('revTargetType').value = targetType;
+      document.getElementById('revTargetId').value = targetId;
+      document.getElementById('revBookingId').value = bookingId;
+      const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+      modal.show();
+    }
+
+    async function submitVerifiedReview(e) {
+      e.preventDefault();
+      const rating = document.querySelector('input[name="ratingRadio"]:checked').value;
+      const comment = document.getElementById('revComment').value;
+      const target_type = document.getElementById('revTargetType').value;
+      const target_id = document.getElementById('revTargetId').value;
+      const booking_or_order_id = document.getElementById('revBookingId').value;
+
+      try {
+        const res = await RevoraApp.fetchApi('/reviews', {
+          method: 'POST',
+          body: JSON.stringify({ target_type, target_id, booking_or_order_id, rating, comment })
+        });
+
+        RevoraApp.showToast(res.message, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+        document.getElementById('reviewForm').reset();
+      } catch (err) {
+        RevoraApp.showToast(err.message, 'error');
+      }
+    }
+
+    function openProfileEditModal() {
+      RevoraApp.showToast('Profile editing: You can update roles or addresses anytime in database.', 'info');
+    }
+  </script>
+</body>
+</html>

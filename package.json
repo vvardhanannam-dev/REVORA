@@ -1,0 +1,37 @@
+{
+  "name": "revora",
+  "version": "1.0.0",
+  "description": "REVORA — Connect Resources. Create Opportunities. Responsive Full-Stack Web Application.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "node -e \"console.log('Build completed successfully')\"",
+    "seed": "node src/db/seed.js",
+    "test": "node test/api.test.js"
+  },
+  "keywords": [
+    "revora",
+    "farm-equipment",
+    "marketplace",
+    "resource-sharing",
+    "home-services",
+    "bhimavaram",
+    "bootstrap-5"
+  ],
+  "author": "REVORA Team",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.4.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
