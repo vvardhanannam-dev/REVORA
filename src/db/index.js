@@ -1,77 +1,141 @@
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
 
-let Database;
-try {
-  Database = require('better-sqlite3');
-} catch (e) {
-  console.warn('Notice: better-sqlite3 native module not available:', e.message);
+let activeDbInstance = null;
+let initPromise = null;
+
+function createSqliteWrapper(sqlDatabase) {
+  return {
+    exec(sql) {
+      return sqlDatabase.exec(sql);
+    },
+    pragma(sql) {
+      try {
+        return sqlDatabase.exec('PRAGMA ' + sql);
+      } catch (e) {
+        return [];
+      }
+    },
+    transaction(fn) {
+      return (...args) => {
+        sqlDatabase.exec('BEGIN TRANSACTION;');
+        try {
+          const res = fn(...args);
+          sqlDatabase.exec('COMMIT;');
+          return res;
+        } catch (e) {
+          sqlDatabase.exec('ROLLBACK;');
+          throw e;
+        }
+      };
+    },
+    prepare(sql) {
+      return {
+        all(...params) {
+          const stmt = sqlDatabase.prepare(sql);
+          try {
+            stmt.bind(params);
+            const results = [];
+            while (stmt.step()) {
+              results.push(stmt.getAsObject());
+            }
+            return results;
+          } finally {
+            stmt.free();
+          }
+        },
+        get(...params) {
+          const stmt = sqlDatabase.prepare(sql);
+          try {
+            stmt.bind(params);
+            if (stmt.step()) {
+              return stmt.getAsObject();
+            }
+            return undefined;
+          } finally {
+            stmt.free();
+          }
+        },
+        run(...params) {
+          sqlDatabase.run(sql, params);
+          const changes = sqlDatabase.getRowsModified();
+          return {
+            changes,
+            lastInsertRowid: 0
+          };
+        }
+      };
+    }
+  };
 }
 
-let db;
-try {
-  let dbPath;
-  if (process.env.VERCEL) {
-    // On Vercel (AWS Lambda Linux), writable temp directory
-    const tmpDir = process.platform === 'win32' ? os.tmpdir() : '/tmp';
-    dbPath = path.join(tmpDir, 'revora.db');
-    const sourceDb = path.join(__dirname, '../../data/revora.db');
-    if (fs.existsSync(sourceDb) && !fs.existsSync(dbPath)) {
-      try {
-        fs.copyFileSync(sourceDb, dbPath);
-        console.log('✓ Successfully copied pre-seeded revora.db to tmp');
-      } catch (e) {
-        console.warn('Could not copy pre-seeded sqlite db to tmp:', e.message);
-      }
-    }
-  } else {
+// Check if running on local machine with better-sqlite3
+if (!process.env.VERCEL) {
+  try {
+    const Database = require('better-sqlite3');
     const dbDir = path.join(__dirname, '../../data');
     if (!fs.existsSync(dbDir)) {
-      try {
-        fs.mkdirSync(dbDir, { recursive: true });
-      } catch (e) {}
+      try { fs.mkdirSync(dbDir, { recursive: true }); } catch (e) {}
     }
-    dbPath = path.join(dbDir, 'revora.db');
+    const dbPath = path.join(dbDir, 'revora.db');
+    activeDbInstance = new Database(dbPath);
+    try { activeDbInstance.pragma('journal_mode = WAL'); } catch (e) {}
+    try { activeDbInstance.pragma('foreign_keys = ON'); } catch (e) {}
+  } catch (err) {
+    console.warn('Notice: Local better-sqlite3 init skipped, falling back to WebAssembly:', err.message);
   }
-
-  if (Database) {
-    const parentDir = path.dirname(dbPath);
-    if (!fs.existsSync(parentDir)) {
-      try { fs.mkdirSync(parentDir, { recursive: true }); } catch (e) {}
-    }
-
-    db = new Database(dbPath);
-
-    // Enable foreign keys and WAL mode (WAL for local disk)
-    if (!process.env.VERCEL) {
-      try {
-        db.pragma('journal_mode = WAL');
-      } catch (e) {}
-    }
-    try {
-      db.pragma('foreign_keys = ON');
-    } catch (e) {}
-  }
-} catch (err) {
-  console.warn('SQLite init warning (fallback):', err.message);
 }
 
-// Fallback in case native sqlite binary fails in serverless
-if (!db) {
-  console.warn('Warning: Using safe database mock fallback');
-  const dummyStmt = {
-    all: () => [],
-    get: () => null,
-    run: () => ({ changes: 0, lastInsertRowid: 0 })
-  };
-  db = {
-    prepare: () => dummyStmt,
-    exec: () => {},
-    pragma: () => {},
-    transaction: (fn) => fn
-  };
+async function ensureDbReady() {
+  if (activeDbInstance) return activeDbInstance;
+  if (!initPromise) {
+    initPromise = (async () => {
+      try {
+        const initSqlJs = require('sql.js');
+        const wasmPath = require.resolve('sql.js/dist/sql-wasm.wasm');
+        const wasmBinary = fs.readFileSync(wasmPath);
+        const SQL = await initSqlJs({ wasmBinary });
+        const dbFile = path.join(__dirname, '../../data/revora.db');
+        let fileBuffer;
+        if (fs.existsSync(dbFile)) {
+          fileBuffer = fs.readFileSync(dbFile);
+        }
+        const rawDb = fileBuffer ? new SQL.Database(fileBuffer) : new SQL.Database();
+        activeDbInstance = createSqliteWrapper(rawDb);
+        if (!fileBuffer) {
+          initSchema(activeDbInstance);
+          const { seedData } = require('./seed');
+          seedData(activeDbInstance);
+        }
+        return activeDbInstance;
+      } catch (err) {
+        console.error('Fatal WebAssembly database error:', err);
+        throw err;
+      }
+    })();
+  }
+  return initPromise;
 }
+
+const db = {
+  prepare(...args) {
+    if (!activeDbInstance) {
+      throw new Error('Database is still initializing. Please wait a moment.');
+    }
+    return activeDbInstance.prepare(...args);
+  },
+  exec(...args) {
+    if (activeDbInstance) return activeDbInstance.exec(...args);
+  },
+  pragma(...args) {
+    if (activeDbInstance) return activeDbInstance.pragma(...args);
+    return [];
+  },
+  transaction(...args) {
+    if (activeDbInstance) return activeDbInstance.transaction(...args);
+    return (fn) => fn;
+  }
+};
 
 function initSchema() {
   db.exec(`
@@ -273,21 +337,25 @@ function initSchema() {
   `);
 }
 
-try {
-  initSchema();
-} catch (err) {
-  console.warn('Notice: Schema init warning:', err.message);
+if (activeDbInstance) {
+  try {
+    initSchema();
+  } catch (err) {
+    console.warn('Notice: Schema init warning:', err.message);
+  }
+
+  // Auto-seed if database is newly initialized locally
+  try {
+    const userCheck = db.prepare('SELECT COUNT(*) as count FROM users').get();
+    if (!userCheck || userCheck.count === 0) {
+      const { seedData } = require('./seed');
+      seedData(db);
+    }
+  } catch (e) {
+    console.warn('Notice: Auto-seed skipped:', e.message);
+  }
 }
 
 module.exports = db;
-
-// Auto-seed if database is newly initialized
-try {
-  const userCheck = db.prepare('SELECT COUNT(*) as count FROM users').get();
-  if (!userCheck || userCheck.count === 0) {
-    const { seedData } = require('./seed');
-    seedData(db);
-  }
-} catch (e) {
-  console.warn('Notice: Auto-seed skipped:', e.message);
-}
+module.exports.ensureDbReady = ensureDbReady;
+module.exports.db = db;

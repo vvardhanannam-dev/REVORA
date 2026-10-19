@@ -21,29 +21,45 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const { ensureDbReady } = require('./db');
+
+// Ensure database is ready before processing API requests
+app.use(async (req, res, next) => {
+  try {
+    await ensureDbReady();
+    next();
+  } catch (err) {
+    console.error('Database readiness error:', err);
+    res.status(500).json({ success: false, message: 'Database initialization failed.' });
+  }
+});
+
 // Serve static frontend assets from public/
 app.use(express.static(path.join(__dirname, '../public')));
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/equipment', equipmentRoutes);
-app.use('/api/marketplace', marketplaceRoutes);
-app.use('/api/services', servicesRoutes);
-app.use('/api/categories', categoriesRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/notifications', notificationsRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/upload', uploadRoutes);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    application: 'REVORA',
-    tagline: 'Connect Resources. Create Opportunities.',
-    timestamp: new Date().toISOString()
+// API Routes (mounted with /api and without in case serverless gateway strips /api)
+const registerRoutes = (prefix = '') => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/equipment`, equipmentRoutes);
+  app.use(`${prefix}/marketplace`, marketplaceRoutes);
+  app.use(`${prefix}/services`, servicesRoutes);
+  app.use(`${prefix}/categories`, categoriesRoutes);
+  app.use(`${prefix}/reviews`, reviewsRoutes);
+  app.use(`${prefix}/notifications`, notificationsRoutes);
+  app.use(`${prefix}/dashboard`, dashboardRoutes);
+  app.use(`${prefix}/upload`, uploadRoutes);
+  app.get(`${prefix}/health`, (req, res) => {
+    res.json({
+      status: 'healthy',
+      application: 'REVORA',
+      tagline: 'Connect Resources. Create Opportunities.',
+      timestamp: new Date().toISOString()
+    });
   });
-});
+};
+
+registerRoutes('/api');
+registerRoutes('');
 
 // Fallback for HTML5 Single-Page / Multi-Page routing
 app.use((req, res) => {
