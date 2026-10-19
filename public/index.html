@@ -444,6 +444,37 @@
       100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
     }
 
+    /* Portals Gateway Cards */
+    .portal-card-strip {
+      background: var(--re-surface);
+      border: 1.5px solid var(--re-border);
+      border-radius: 18px;
+      padding: 1.35rem;
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+      text-decoration: none !important;
+      color: var(--re-text-main) !important;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .portal-card-strip:hover {
+      transform: translateY(-5px);
+      border-color: var(--re-primary);
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.22);
+    }
+    .portal-card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+      margin-bottom: 0.9rem;
+    }
+
     @media (min-width: 1200px) {
       .nav-item.dropdown:hover .dropdown-menu {
         display: block;
@@ -866,6 +897,20 @@
           <li class="nav-item">
             <a class="nav-link" href="#sectionServices" data-i18n="navServices">Home Services</a>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="javascript:void(0)" id="navbarPortalsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-table-cells text-success me-1"></i>
+              <span data-i18n="navPortals">Portals</span>
+            </a>
+            <ul class="dropdown-menu shadow-lg border-0 py-2" aria-labelledby="navbarPortalsDropdown" style="border-radius: 14px; background: var(--re-surface); min-width: 270px;">
+              <li><a class="dropdown-item py-2 d-flex align-items-center" href="/marketplace.html"><i class="fa-solid fa-basket-shopping text-danger fs-5 me-3" style="width:24px;"></i><div><strong>Fresh Produce</strong><div class="small text-muted">రైతు బజార్ & పంటలు</div></div></a></li>
+              <li><a class="dropdown-item py-2 d-flex align-items-center" href="/farm-equipment.html"><i class="fa-solid fa-tractor text-warning fs-5 me-3" style="width:24px;"></i><div><strong>Farm Equipment</strong><div class="small text-muted">యంత్రాల అద్దె హబ్</div></div></a></li>
+              <li><a class="dropdown-item py-2 d-flex align-items-center" href="/resource-sharing.html"><i class="fa-solid fa-screwdriver-wrench fs-5 me-3" style="color:#7c3aed; width:24px;"></i><div><strong>Resource Sharing</strong><div class="small text-muted">టూల్స్ & పరికరాల పూల్</div></div></a></li>
+              <li><a class="dropdown-item py-2 d-flex align-items-center" href="/home-services.html"><i class="fa-solid fa-house-chimney-user text-primary fs-5 me-3" style="width:24px;"></i><div><strong>Local Home Services</strong><div class="small text-muted">గృహ & ఫీల్డ్ సర్వీసులు</div></div></a></li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li><a class="dropdown-item py-2 d-flex align-items-center" href="/dashboard.html"><i class="fa-solid fa-gauge text-success fs-5 me-3" style="width:24px;"></i><div><strong>Dashboard</strong><div class="small text-muted">యూజర్ & ప్రొవైడర్ పోర్టల్</div></div></a></li>
+            </ul>
+          </li>
         </ul>
 
         <!-- Live Location Capsule -->
@@ -1162,6 +1207,87 @@
         <div class="col-6 col-md-3">
           <div class="fw-bold fs-3 text-primary">★ 4.8 / 5</div>
           <div class="small text-muted" data-i18n="statRating">Average Rating</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTALS QUICK ACCESS GATEWAY -->
+  <section class="py-4 border-bottom" style="background: rgba(18, 61, 44, 0.04); border-color: var(--re-border) !important;">
+    <div class="container-fluid px-lg-5">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+        <div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+            <i class="fa-solid fa-bolt me-1 text-warning"></i> Dedicated Portals & Hubs / ప్రత్యేక పోర్టల్స్
+          </span>
+          <h3 class="h4 fw-bold mt-2 mb-0" style="color: var(--re-text-main);">
+            REVORA Community Portals Gateway
+          </h3>
+        </div>
+        <div class="mt-2 mt-md-0">
+          <span class="text-muted small">Instant 1-click access to all vertical portals & user dashboards</span>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <!-- 1. Produce Portal -->
+        <div class="col-6 col-md-3">
+          <a href="/marketplace.html" class="portal-card-strip">
+            <div class="portal-card-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+              <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size: 1.05rem;">Fresh Produce</h5>
+            <div class="small fw-semibold text-danger mb-2">రైతు బజార్ (8 Items)</div>
+            <p class="text-muted small mb-3 flex-grow-1" style="font-size: 0.82rem;">Direct harvest sales from Godavari farmers. Sona Masoori, Mangoes & Veggies.</p>
+            <div class="d-flex align-items-center text-success fw-bold small mt-auto">
+              <span>Enter Marketplace</span> <i class="fa-solid fa-arrow-right ms-2"></i>
+            </div>
+          </a>
+        </div>
+
+        <!-- 2. Equipment Rental Portal -->
+        <div class="col-6 col-md-3">
+          <a href="/farm-equipment.html" class="portal-card-strip">
+            <div class="portal-card-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+              <i class="fa-solid fa-tractor"></i>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size: 1.05rem;">Farm Equipment</h5>
+            <div class="small fw-semibold text-warning mb-2">యంత్రాల అద్దె (8 Machines)</div>
+            <p class="text-muted small mb-3 flex-grow-1" style="font-size: 0.82rem;">Tractors, paddy harvesters, power tillers & sprayers with hourly/daily rates.</p>
+            <div class="d-flex align-items-center text-warning fw-bold small mt-auto">
+              <span>Enter Equipment Hub</span> <i class="fa-solid fa-arrow-right ms-2"></i>
+            </div>
+          </a>
+        </div>
+
+        <!-- 3. Resource Sharing Portal -->
+        <div class="col-6 col-md-3">
+          <a href="/resource-sharing.html" class="portal-card-strip">
+            <div class="portal-card-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size: 1.05rem;">Resource Sharing</h5>
+            <div class="small fw-semibold mb-2" style="color: #8b5cf6;">టూల్స్ & పరికరాలు (8 Tools)</div>
+            <p class="text-muted small mb-3 flex-grow-1" style="font-size: 0.82rem;">Borrow silent generators, canopies, ladders, hammer drills & water tanks.</p>
+            <div class="d-flex align-items-center fw-bold small mt-auto" style="color: #8b5cf6;">
+              <span>Enter Tool Pool</span> <i class="fa-solid fa-arrow-right ms-2"></i>
+            </div>
+          </a>
+        </div>
+
+        <!-- 4. Home Services Portal -->
+        <div class="col-6 col-md-3">
+          <a href="/home-services.html" class="portal-card-strip">
+            <div class="portal-card-icon" style="background: rgba(2, 132, 199, 0.15); color: #0284c7;">
+              <i class="fa-solid fa-house-chimney-user"></i>
+            </div>
+            <h5 class="fw-bold mb-1" style="font-size: 1.05rem;">Home Services</h5>
+            <div class="small fw-semibold text-primary mb-2">గృహ సర్వీసులు (8 Experts)</div>
+            <p class="text-muted small mb-3 flex-grow-1" style="font-size: 0.82rem;">Verified local electricians, plumbers, carpenters, AC mechanics & cleaners.</p>
+            <div class="d-flex align-items-center text-primary fw-bold small mt-auto">
+              <span>Enter Service Desk</span> <i class="fa-solid fa-arrow-right ms-2"></i>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -1519,7 +1645,7 @@
         </div>
 
         <div class="col-6 col-lg-3">
-          <h6 class="fw-bold mb-3 text-success">Quick Links</h6>
+          <h6 class="fw-bold mb-3 text-success">Quick Portals</h6>
           <ul class="list-unstyled small text-muted d-flex flex-column gap-2">
             <li><a href="/marketplace.html" class="text-decoration-none text-muted">Fresh Produce (రైతు బజార్)</a></li>
             <li><a href="/farm-equipment.html" class="text-decoration-none text-muted">Farm Equipment (యంత్రాలు)</a></li>
@@ -1559,6 +1685,7 @@
         navEquip: "Farm Equipment",
         navResources: "Resource Sharing",
         navServices: "Home Services",
+        navPortals: "Portals",
         btnLogin: "Login",
         btnSignUp: "Sign Up",
         secProduceTitle: "Fresh From Local Farmers",
@@ -1585,6 +1712,7 @@
         navEquip: "వ్యవసాయ యంత్రాలు",
         navResources: "రిసోర్స్ షేరింగ్ (టూల్స్)",
         navServices: "గృహ సర్వీసులు",
+        navPortals: "పోర్టల్స్",
         btnLogin: "లాగిన్",
         btnSignUp: "రిజిస్టర్",
         secProduceTitle: "రైతు బజార్ - తాజా పంటలు",

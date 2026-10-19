@@ -479,6 +479,20 @@ const RevoraApp = {
           <a class="${activePage === 'resource-sharing' ? 'active' : ''}" href="/resource-sharing.html">Tool Sharing</a>
           <a class="${activePage === 'home-services' ? 'active' : ''}" href="/home-services.html">Services</a>
 
+          <!-- Portals Dropdown -->
+          <div class="dropdown d-inline-block ms-1">
+            <button class="btn btn-sm btn-outline-success dropdown-toggle rounded-pill px-3 py-1 fw-bold" type="button" id="portalsNavDrop" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid-3x3-gap-fill me-1"></i> Portals
+            </button>
+            <ul class="dropdown-menu shadow-lg border-0" aria-labelledby="portalsNavDrop" style="border-radius: 14px;">
+              <li><a class="dropdown-item py-2" href="/marketplace.html"><i class="bi bi-basket text-danger me-2"></i><strong>Fresh Produce</strong> (రైతు బజార్)</a></li>
+              <li><a class="dropdown-item py-2" href="/farm-equipment.html"><i class="bi bi-truck text-warning me-2"></i><strong>Farm Equipment</strong> (వ్యవసాయ యంత్రాలు)</a></li>
+              <li><a class="dropdown-item py-2" href="/resource-sharing.html"><i class="bi bi-tools text-purple me-2" style="color:#7c3aed;"></i><strong>Resource Sharing</strong> (టూల్స్ & పరికరాలు)</a></li>
+              <li><a class="dropdown-item py-2" href="/home-services.html"><i class="bi bi-wrench-adjustable text-primary me-2"></i><strong>Home Services</strong> (గృహ సర్వీసులు)</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item py-2" href="/dashboard.html"><i class="bi bi-speedometer2 text-success me-2"></i><strong>User & Provider Dashboard</strong></a></li>
+            </ul>
+          </div>
         </nav>
 
         <div class="header-actions d-flex align-items-center gap-2">
@@ -526,7 +540,7 @@ const RevoraApp = {
           <a href="/marketplace.html">Produce Marketplace</a>
           <a href="/resource-sharing.html">Tool Sharing</a>
           <a href="/home-services.html">Home Services</a>
-          <a href="/dashboard.html">Dashboard</a>
+          <a href="/dashboard.html">Community Portal</a>
         </div>
         <small>© ${new Date().getFullYear()} REVORA. Built for shared growth in Andhra Pradesh.</small>
       </footer>
