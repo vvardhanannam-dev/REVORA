@@ -50,9 +50,20 @@ const RevoraApp = {
         headers
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      let data;
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        if (!response.ok) {
+          throw new Error(text || `Server returned error (${response.status})`);
+        }
+        data = { message: text };
+      }
+
       if (!response.ok) {
-        throw new Error(data.message || 'An error occurred with your request.');
+        throw new Error(data.message || `Request failed with status ${response.status}`);
       }
       return data;
     } catch (err) {

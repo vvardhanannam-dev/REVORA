@@ -1,8 +1,17 @@
-const db = require('./index');
+let defaultDb;
+try {
+  defaultDb = require('./index');
+} catch (e) {}
+
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
-async function seedData() {
+function seedData(targetDb) {
+  const db = targetDb || defaultDb || require('./index');
+  if (!db || typeof db.exec !== 'function') {
+    console.warn('Notice: Cannot seed database, db instance not available');
+    return;
+  }
   console.log('🌱 Starting REVORA sample and demonstration data seed...');
 
   // Clear existing demonstration data if needed
@@ -1123,12 +1132,13 @@ async function seedData() {
 }
 
 if (require.main === module) {
-  seedData()
-    .then(() => process.exit(0))
-    .catch((err) => {
-      console.error('❌ Error seeding database:', err);
-      process.exit(1);
-    });
+  try {
+    seedData();
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Error seeding database:', err);
+    process.exit(1);
+  }
 }
 
 module.exports = { seedData };

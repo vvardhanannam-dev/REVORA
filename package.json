@@ -29,6 +29,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.4.0",
+    "sql.js": "^1.15.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

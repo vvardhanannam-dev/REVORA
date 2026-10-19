@@ -7,13 +7,27 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-const uploadDir = path.join(__dirname, '../../public/uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const os = require('os');
+const isVercel = Boolean(process.env.VERCEL);
+const uploadDir = isVercel
+  ? path.join(os.tmpdir(), 'revora_uploads')
+  : path.join(__dirname, '../../public/uploads');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('Notice: Could not pre-create upload directory:', e.message);
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    try {
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+    } catch (e) {}
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
